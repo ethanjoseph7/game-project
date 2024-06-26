@@ -13,7 +13,7 @@ vec = pygame.math.Vector2  # 2 for two dimensional
 #print(pygame.get_init())
 HEIGHT = 350
 WIDTH = 700
-ACC = 0.3
+ACC = 2
 FRIC = -0.10
 FPS = 60
 FPS_CLOCK = pygame.time.Clock()
@@ -97,7 +97,7 @@ class Player(pygame.sprite.Sprite):
             self.pos.x = WIDTH
 
         self.rect.midbottom = self.pos
-    
+ 
     def gravity_check(self):
         hits = pygame.sprite.spritecollide(player, ground_group, False)
         if self.vel.y > 0:
@@ -136,13 +136,14 @@ player = Player()
 
 
 while True:
+    
+    FPS_CLOCK.tick(FPS)
+
     for event in pygame.event.get():
-        FPS_CLOCK.tick(80)
         if event.type == QUIT:
             pygame.quit()
             sys.exit()
      
-        player.gravity_check()
         #if event.type == pygame.MOUSEBUTTONDOWN:
             #pass
     
@@ -151,14 +152,14 @@ while True:
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE:
                     player.jump()
-
+    player.gravity_check()
         # Render Functions ------
-        background.render() 
-        ground.render()
+    background.render() 
+    ground.render()
 
-        player.move()
+    player.move()
 
-        displaysurface.blit(player.image, player.rect)
+    displaysurface.blit(player.image, player.rect)
 
     pygame.display.update() 
         
