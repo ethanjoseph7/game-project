@@ -31,6 +31,11 @@ class Background(pygame.sprite.Sprite):
             self.bgimage = pygame.image.load(bg_url)        
             self.bgY = 0
             self.bgX = 0
+            
+            if self.pos.x > WIDTH:
+             self.pos.x = 0
+            if self.pos.x < 0:
+             self.pos.x = WIDTH
  
       def render(self):
             displaysurface.blit(self.bgimage, (self.bgX, self.bgY))
