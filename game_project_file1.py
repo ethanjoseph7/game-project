@@ -1,3 +1,4 @@
+from ntpath import join
 import pygame
 from pygame.locals import *
 import sys
@@ -26,62 +27,45 @@ FramePerSec = pygame.time.Clock()
 displaysurface = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Game")
 
-idle_right_images = []
-idle_right_images.append(pygame.image.load("character_sprites/Fighter/idling_right_images/idle_right_1.png").convert_alpha())
-idle_right_images.append(pygame.image.load("character_sprites/Fighter/idling_right_images/idle_right_2.png").convert_alpha())
-idle_right_images.append(pygame.image.load("character_sprites/Fighter/idling_right_images/idle_right_3.png").convert_alpha())
-idle_right_images.append(pygame.image.load("character_sprites/Fighter/idling_right_images/idle_right_4.png").convert_alpha())
-idle_right_images.append(pygame.image.load("character_sprites/Fighter/idling_right_images/idle_right_5.png").convert_alpha())
-idle_right_images.append(pygame.image.load("character_sprites/Fighter/idling_right_images/idle_right_6.png").convert_alpha())
+idle_right_images = [
+    pygame.image.load(f"character_sprites/Fighter/idling_right_images/idle_right_{i}.png").convert_alpha()
+    for i in range(1, 7)
+]
 
-idle_left_images = []
-idle_left_images.append(pygame.image.load("character_sprites/Fighter/idling_left_images/idle_left_1.png").convert_alpha())
-idle_left_images.append(pygame.image.load("character_sprites/Fighter/idling_left_images/idle_left_2.png").convert_alpha())
-idle_left_images.append(pygame.image.load("character_sprites/Fighter/idling_left_images/idle_left_3.png").convert_alpha())
-idle_left_images.append(pygame.image.load("character_sprites/Fighter/idling_left_images/idle_left_4.png").convert_alpha())
-idle_left_images.append(pygame.image.load("character_sprites/Fighter/idling_left_images/idle_left_5.png").convert_alpha())
-idle_left_images.append(pygame.image.load("character_sprites/Fighter/idling_left_images/idle_left_6.png").convert_alpha())
+idle_left_images = [
+    pygame.image.load(f"character_sprites/Fighter/idling_left_images/idle_left_{i}.png").convert_alpha()
+    for i in range(1, 7)
+]
 
-running_right_images = []
-running_right_images.append(pygame.image.load("character_sprites/Fighter/run_right_images/Run_right_1.png").convert_alpha())
-running_right_images.append(pygame.image.load("character_sprites/Fighter/run_right_images/Run_right_2.png").convert_alpha())
-running_right_images.append(pygame.image.load("character_sprites/Fighter/run_right_images/Run_right_3.png").convert_alpha())
-running_right_images.append(pygame.image.load("character_sprites/Fighter/run_right_images/Run_right_4.png").convert_alpha())
-running_right_images.append(pygame.image.load("character_sprites/Fighter/run_right_images/Run_right_5.png").convert_alpha())
-running_right_images.append(pygame.image.load("character_sprites/Fighter/run_right_images/Run_right_6.png").convert_alpha())
-running_right_images.append(pygame.image.load("character_sprites/Fighter/run_right_images/Run_right_7.png").convert_alpha())
-running_right_images.append(pygame.image.load("character_sprites/Fighter/run_right_images/Run_right_8.png").convert_alpha())
+running_right_images = [
+    pygame.image.load(f"character_sprites/Fighter/run_right_images/Run_right_{i}.png").convert_alpha()
+    for i in range(1, 9)
+]
 
-running_left_images = []
-running_left_images.append(pygame.image.load("character_sprites/Fighter/run_left_images/Run_left_1.png").convert_alpha())
-running_left_images.append(pygame.image.load("character_sprites/Fighter/run_left_images/Run_left_2.png").convert_alpha())
-running_left_images.append(pygame.image.load("character_sprites/Fighter/run_left_images/Run_left_3.png").convert_alpha())
-running_left_images.append(pygame.image.load("character_sprites/Fighter/run_left_images/Run_left_4.png").convert_alpha())
-running_left_images.append(pygame.image.load("character_sprites/Fighter/run_left_images/Run_left_5.png").convert_alpha())
-running_left_images.append(pygame.image.load("character_sprites/Fighter/run_left_images/Run_left_6.png").convert_alpha())
-running_left_images.append(pygame.image.load("character_sprites/Fighter/run_left_images/Run_left_7.png").convert_alpha())
-running_left_images.append(pygame.image.load("character_sprites/Fighter/run_left_images/Run_left_8.png").convert_alpha())
+running_left_images = [
+    pygame.image.load(f"character_sprites/Fighter/run_left_images/Run_left_{i}.png").convert_alpha()
+    for i in range(1, 9)
+]
 
-attack_1_right_images = []
-attack_1_right_images.append(pygame.image.load("character_sprites/Fighter/attack_1_right_images/Attack_1_right_1.png").convert_alpha())
-attack_1_right_images.append(pygame.image.load("character_sprites/Fighter/attack_1_right_images/Attack_1_right_2.png").convert_alpha())
-attack_1_right_images.append(pygame.image.load("character_sprites/Fighter/attack_1_right_images/Attack_1_right_3.png").convert_alpha())
-attack_1_right_images.append(pygame.image.load("character_sprites/Fighter/attack_1_right_images/Attack_1_right_4.png").convert_alpha())
-attack_1_right_images.append(pygame.image.load("character_sprites/Fighter/attack_1_right_images/Attack_1_right_5.png").convert_alpha())
-attack_1_right_images.append(pygame.image.load("character_sprites/Fighter/attack_1_right_images/Attack_1_right_6.png").convert_alpha())
-attack_1_right_images.append(pygame.image.load("character_sprites/Fighter/attack_1_right_images/Attack_1_right_7.png").convert_alpha())
+attack_1_right_images = [
+    pygame.image.load(f"character_sprites/Fighter/attack_1_right_images/Attack_1_right_{i}.png").convert_alpha()
+    for i in range(1, 8)
+]
 
+attack_1_left_images = [
+    pygame.image.load(f"character_sprites/Fighter/attack_1_left_images/Attack_1_left_{i}.png").convert_alpha()
+    for i in range(1, 5)
+]
 
+def get_block(size):
+    path = join("platforms", "ground_4.png")  # Get the path to the block image
+    image = pygame.image.load(path).convert_alpha()  # Load the block image
+    surface = pygame.Surface((size, size), pygame.SRCALPHA, 32)  # Create a surface for the block
+    rect = pygame.Rect(270, 80, size, size)  # Define the rectangle for the block
+    surface.blit(image, (0, 0), rect)  # Blit the block from the image onto the surface
+    return pygame.transform.scale2x(surface)  # Scale the block surface and return it
 
-attack_1_left_images = []
-attack_1_left_images.append(pygame.image.load("character_sprites/Fighter/attack_1_left_images/Attack_1_left_1.png").convert_alpha())
-attack_1_left_images.append(pygame.image.load("character_sprites/Fighter/attack_1_left_images/Attack_1_left_2.png").convert_alpha())
-attack_1_left_images.append(pygame.image.load("character_sprites/Fighter/attack_1_left_images/Attack_1_left_3.png").convert_alpha())
-attack_1_left_images.append(pygame.image.load("character_sprites/Fighter/attack_1_left_images/Attack_1_left_4.png").convert_alpha())
-
-
-
-
+"""
 class Background(pygame.sprite.Sprite):
       def __init__(self):
             super().__init__()
@@ -89,7 +73,7 @@ class Background(pygame.sprite.Sprite):
             self.bgimage = pygame.image.load(bg_url)        
             self.bgY = 0
             self.bgX = 0
-            
+            self.pos = pygame.Vector2(0, 0)
             if self.pos.x > WIDTH:
              self.pos.x = 0
             if self.pos.x < 0:
@@ -97,7 +81,9 @@ class Background(pygame.sprite.Sprite):
  
       def render(self):
             displaysurface.blit(self.bgimage, (self.bgX, self.bgY))
- 
+            
+"""
+  
 class Ground(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
@@ -106,7 +92,7 @@ class Ground(pygame.sprite.Sprite):
         self.rect = self.image.get_rect(center = (350, 350))
  
     def render(self):
-        displaysurface.blit(self.image, (self.rect.x, self.rect.y))  
+        displaysurface.blit(self.image, (WIDTH, self.rect.y))  
  
 class Enemy(pygame.sprite.Sprite):
       def __init__(self):
@@ -127,7 +113,7 @@ class Player(pygame.sprite.Sprite):
         
 
         self.jumping = False
-        self.running = False
+        self.running = False 
         self.last_update = pygame.time.get_ticks()
  
         # Position and direction
@@ -202,17 +188,31 @@ class Player(pygame.sprite.Sprite):
                     self.pos.y = lowest.rect.top +1 
                     self.vel.y = 0
                     self.jumping = False
+                    self.double_jump = 2
 
     def jump(self):
         self.rect.x +=1 
+        self.d_jump = False
         #check to see if player contacts ground
         hits = pygame.sprite.spritecollide(self, ground_group, False)
 
         self.rect.x -= 1
-
+        
+        ##double jump enabled
         if hits and not self.jumping:
+            self.vel.y = -12
+            self.double_jump -= 2
+        #condition to double jump
+        if not hits and not self.jumping and self.double_jump < 2:
             self.jumping = True
             self.vel.y = -12
+            self.double_jump = 2
+            #condition for double jump animation
+            self.d_jump = True 
+            
+            
+            
+        
             
 
     def update(self):
@@ -271,15 +271,70 @@ class Player(pygame.sprite.Sprite):
             self.pos.x -=20
         if self.attack_frame == -10:
             self.pos.x += 20
+ 
+ 
+class Object(pygame.sprite.Sprite):
+    def __init__(self, x, y, width, height, name=None):
+        super().__init__()
+        self.rect = pygame.Rect(x, y, width, height)  # Create a rectangle for the object
+        self.image = pygame.Surface((width, height), pygame.SRCALPHA)  # Create a surface for the object
+        self.width = width  # Set the width of the object
+        self.height = height  # Set the height of the object
+        self.name = name  # Set the name of the object
+
+    def draw(self, win, offset_x):
+        win.blit(self.image, (self.rect.x - offset_x, self.rect.y))  # Draw the object on the window
 
 
+class Block(Object):
+    def __init__(self, x, y, size):
+        super().__init__(x, y, size, size)  # Create a block object
+        block = get_block(size)  # Get the block image
+        self.image.blit(block, (0, 0))  # Blit the block image onto the object's image
+        self.mask = pygame.mask.from_surface(self.image)  # Update the mask of the object
+        
+        
+def get_background(name):
+    image = pygame.image.load(r'backgrounds/nightsky_3.png').convert_alpha()  # Load the background image
+    _, _, width, height = image.get_rect()  # Get the width and height of the image
+    tiles = []  # List to store the positions of the background tiles
 
+    for i in range(WIDTH // width + 1):
+        for j in range(HEIGHT // height + 1):
+            pos = (i * width, j * height)  # Calculate the position of each tile
+            tiles.append(pos)  # Add the position to the list
+
+    return tiles, image  # Return the list of positions and the background image
+
+
+def draw(window, background, bg_image, player, objects, offset_x):
+    for tile in background:
+        window.blit(bg_image, tile)  # Draw the background tiles on the window
+
+    for obj in objects:
+        obj.draw(window, offset_x)  # Draw the objects on the window
+
+    player.draw(window, offset_x)  # Draw the player character on the window
+
+    pygame.display.update()  # Update the display
+
+ 
+ 
+ 
                         
-background = Background()
+background, bg_image = get_background("ground_4")
 ground = Ground()
 ground_group = pygame.sprite.Group()
 ground_group.add(ground)
 player = Player()
+block_size = 90 
+offset_x = 0
+
+objects = [Block(block_size * 3, HEIGHT - block_size * 4, block_size),
+           Block(block_size * 4, HEIGHT - block_size * 4, block_size), 
+           Block(100, 100, block_size), 
+           Block(650, 200, block_size), 
+           Block(400, 100, block_size), ]  # Create the objects in the game
 
 
 while True:
@@ -312,8 +367,17 @@ while True:
     player.gravity_check()
     
     # Render Functions ------
+    draw(displaysurface, background, bg_image, player, objects, offset_x)  # Draw the game objects on the window
+
+ 
+                
+                 
     background.render() 
     ground.render()
+    
+    for obj in objects:
+        if isinstance(obj, Block):
+            obj.render()
 
     player.update()
     if player.attacking == TRUE:
