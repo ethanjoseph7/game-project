@@ -8,7 +8,7 @@ import samurai_sprite
 import fighter_sprite
 import ground_class
 import background_class
-import platforms
+import platformsad
 
 
  
@@ -16,11 +16,11 @@ pygame.init()
 vec = pygame.math.Vector2  # 2 for two dimensional
  
 #print(pygame.get_init())
-HEIGHT = 900
-WIDTH = 1000
+HEIGHT = 826
+WIDTH = 1500
 ACC = 2
 FRIC = -0.10
-FPS = 60
+FPS = 90
 FPS_CLOCK = pygame.time.Clock()
 COUNT = 0
 BG = (0, 0, 0)
