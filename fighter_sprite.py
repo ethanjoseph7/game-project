@@ -4,12 +4,17 @@ from pygame.locals import *
 def get_idle_images():
     fighter_idle_right_images = []
     fighter_idle_left_images = []
+    SIZE_MULTIPLIER = 1.9
     for i in range(6):
         load_url = "character_sprites/Fighter/idling_right_images/idle_right_" + str(i+1)+ ".png"
-        fighter_idle_right_images.append(pygame.image.load(load_url).convert_alpha())
+        image = pygame.image.load(load_url).convert_alpha()
+        bigger_img = pygame.transform.scale(image, (image.get_width()*SIZE_MULTIPLIER, image.get_height()*SIZE_MULTIPLIER))
+        fighter_idle_right_images.append(bigger_img)
 
         load_url = "character_sprites/Fighter/idling_left_images/idle_left_" + str(i+1) + ".png"
-        fighter_idle_left_images.append(pygame.image.load(load_url).convert_alpha())
+        image = pygame.image.load(load_url).convert_alpha()
+        bigger_img = pygame.transform.scale(image, (image.get_width()*SIZE_MULTIPLIER, image.get_height()*SIZE_MULTIPLIER))
+        fighter_idle_left_images.append(bigger_img)
     return (fighter_idle_right_images, fighter_idle_left_images)
 
 def get_running_images():

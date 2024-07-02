@@ -4,7 +4,7 @@ import pygame
 
 
 class Platform(pygame.sprite.Sprite):
-    def __init__(self, x, y, width, height):
+    def __init__(self, x, y, width, height, displaySurface):
         super().__init__()
         self.image = pygame.Surface((width, height))
         platform_url = "platforms/Ground2.png"
@@ -13,7 +13,11 @@ class Platform(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.x = x  # Set the x-coordinate of the platform
         self.rect.y = y  # Set the y-coordinate of the platform
+        self.displaysurface = displaySurface
+        BG = (0,0,0)
+        self.image.set_colorkey(BG)
 
     def render(self):
-        displaysurface.blit(self.image, (self.rect.x, self.rect.y))
+        self.displaysurface.blit(self.image, (self.rect.x, self.rect.y))
+        
         
