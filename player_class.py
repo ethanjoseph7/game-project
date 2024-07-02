@@ -6,8 +6,8 @@ import sys
 
 ACC = 0.3
 FRIC = -0.10
-HEIGHT = 350
-WIDTH = 700
+HEIGHT = 900
+WIDTH = 1000
 
 class Player(pygame.sprite.Sprite):
     
@@ -132,32 +132,50 @@ class Player(pygame.sprite.Sprite):
 
         self.rect.midbottom = self.pos
     
-    def gravity_check(self, player, ground_group):
-        hits = pygame.sprite.spritecollide(player, ground_group, False)
+    def gravity_check(self, player, ground_group, platform_group):
+        hits_ground = pygame.sprite.spritecollide(player, ground_group, False)
+        hits_platform = pygame.sprite.spritecollide(player, platform_group, False)
+        
         if self.vel.y > 0:
-            if hits:
-                lowest = hits[0]
-                if self.pos.y < lowest.rect.bottom:
-                    self.pos.y = lowest.rect.top +1 
+            if hits_ground:
+                lowest = hits_ground[0]
+                if self.pos.y < lowest.rect.bottom + self.vel.y:
+                    self.pos.y = lowest.rect.top + 1 
                     self.vel.y = 0
                     self.jumping = False
-                    self.double_jump = False
+                    self.double_jump = 2
+            elif hits_platform:
+                lowest = hits_platform[0]
+                if self.pos.y <= lowest.rect.bottom + self.vel.y:
+                    self.pos.y = lowest.rect.top + 1 
+                    self.vel.y = 0
+                    self.jumping = False
+                    self.double_jump = 2
+           
+           
+    def jump(self, ground_group, platform_group):
+        """
+        Make the player jump.
 
-    def jump(self, ground_group):
-        self.rect.x +=1 
-        #check to see if player contacts ground
+        This method handles the player's jumping logic and animation.
+        """
+        self.rect.x += 1 
+        self.d_jump = False
+        # Check to see if player contacts ground
         hits = pygame.sprite.spritecollide(self, ground_group, False)
-
+        hits_platform = pygame.sprite.spritecollide(self, platform_group, False)
         self.rect.x -= 1
-
-        if hits and not self.jumping:
+        
+        # Double jump enabled
+        if (hits or hits_platform) and not self.jumping:
+            self.vel.y = -12
+            self.jumping = True
+            self.double_jump -= 1
+        # Condition to double jump
+        elif not hits and not hits_platform and self.double_jump > 0:
             self.jumping = True
             self.vel.y = -12
-
-        elif self.jumping and not self.double_jump:
-            self.double_jump = True
-            self.vel.y = -8
-
+            self.double_jump -= 1
             
 
     def update(self):
@@ -227,17 +245,6 @@ class Player_2(Player):
         self.pos = vec((200, 240))
         self.direction = "RIGHT"
     
-
-    def gravity_check(self, player_2, ground_group):
-        hits = pygame.sprite.spritecollide(player_2, ground_group, False)
-        if self.vel.y > 0:
-            if hits:
-                lowest = hits[0]
-                if self.pos.y < lowest.rect.bottom:
-                    self.pos.y = lowest.rect.top +1 
-                    self.vel.y = 0
-                    self.jumping = False
-                    self.double_jump = False
 
     def move(self):
         self.acc = self.vec(0,0.5)

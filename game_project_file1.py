@@ -8,6 +8,7 @@ import samurai_sprite
 import fighter_sprite
 import ground_class
 import background_class
+import platforms
 
 
  
@@ -15,8 +16,8 @@ pygame.init()
 vec = pygame.math.Vector2  # 2 for two dimensional
  
 #print(pygame.get_init())
-HEIGHT = 350
-WIDTH = 700
+HEIGHT = 900
+WIDTH = 1000
 ACC = 2
 FRIC = -0.10
 FPS = 60
@@ -40,12 +41,17 @@ background = background_class.Background(displaysurface)
 ground = ground_class.Ground(displaysurface)
 ground_group = pygame.sprite.Group()
 ground_group.add(ground)
-player = player_class.Player(vec, displaysurface, "samurai")
-player_2 = player_class.Player_2(vec, displaysurface, "samurai")
+player = player_class.Player(vec, displaysurface, "fighter")
+player_2 = player_class.Player_2(vec, displaysurface, "fighter")
 player_group = pygame.sprite.Group()
 player_group.add(player)
 player_2_group = pygame.sprite.Group()
 player_2_group.add(player_2)
+platform1 = platforms.Platform(150, 250, 100, 30)
+platform2 = platforms.Platform(300, 150, 100, 30)
+platform3 = platforms.Platform(450, 200, 100, 30)
+platform_group = pygame.sprite.Group()
+platform_group.add(platform1, platform2, platform3)
 
 
 
@@ -66,7 +72,7 @@ while True:
             # Event handling for a range of different key presses    
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_UP:
-                player.jump(ground_group)
+                player.jump(ground_group, platform_group)
             if event.key == pygame.K_RSHIFT:
                 if player.attacking == FALSE:
                     player.attack()
@@ -75,7 +81,7 @@ while True:
                         print("player hits")
             
             if event.key == pygame.K_w:
-                player_2.jump(ground_group)
+                player_2.jump(ground_group,platform_group)
             if event.key == pygame.K_LSHIFT:
                 if player_2.attacking == FALSE:
                     player_2.attack()
@@ -87,15 +93,16 @@ while True:
             
 
 
-    player.gravity_check(player, ground_group)
-    player_2.gravity_check(player_2, ground_group)
+    player.gravity_check(player, ground_group, platform_group)
+    player_2.gravity_check(player_2, ground_group, platform_group)
     # Render Functions ------
     background.render() 
-    background = Background()
-    ground = Ground()
+    #background = background_class.Background(displaysurface)
+    #ground = ground_class.Ground(displaysurface)
     ground_group = pygame.sprite.Group()
     ground_group.add(ground)
     ground.render()
+    platform_group.draw(displaysurface)
     player_2.update()
     player.update()
     if player.attacking:
