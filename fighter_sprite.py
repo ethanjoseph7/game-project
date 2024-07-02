@@ -1,60 +1,62 @@
 import pygame
 from pygame.locals import *
-from IPython.display import Image
-import sys
-from PIL import Image
-import spritesheet
 
-mv_animation_right_url = "character_sprites/Fighter/Run_right.png"
-mv_animation_left_url = "character_sprites/Fighter/Run_left.png"
-attack_animation_right_url = "character_sprites/Fighter/Attack_1_right.png"
-attack_animation_left_url = "character_sprites/Fighter/Attack_1_left.png"
-width = 128
-height = 128
-BG = (0,0,0)
+def get_idle_images():
+    fighter_idle_right_images = []
+    fighter_idle_left_images = []
+    for i in range(6):
+        load_url = "character_sprites/Fighter/idling_right_images/idle_right_" + str(i+1)+ ".png"
+        fighter_idle_right_images.append(pygame.image.load(load_url).convert_alpha())
 
+        load_url = "character_sprites/Fighter/idling_left_images/idle_left_" + str(i+1) + ".png"
+        fighter_idle_left_images.append(pygame.image.load(load_url).convert_alpha())
+    return (fighter_idle_right_images, fighter_idle_left_images)
 
+def get_running_images():
+    fighter_running_right_images = []
+    fighter_running_left_images = []
+    for i in range (8):
+        load_url = "character_sprites/Fighter/run_right_images/Run_right_" + str(i+1) + ".png"
+        fighter_running_right_images.append(pygame.image.load(load_url).convert_alpha())
 
-def get_idle_animation_group() -> list:
-    return 
+        load_url = "character_sprites/Fighter/run_left_images/Run_left_" + str(i+1) + ".png"
+        fighter_running_left_images.append(pygame.image.load(load_url).convert_alpha())
+    return (fighter_running_right_images, fighter_running_left_images)
 
-def moving_animation_right_list() -> list:
-    return animate(mv_animation_right_url)
+def get_attack_1_images():
+    fighter_attack_1_right_images = []
+    fighter_attack_1_left_images = []
+    for i in range (10):
+        load_url = "character_sprites/Fighter/attack_1_right_images/Attack_1_right_" + str(i+1) + ".png"
+        fighter_attack_1_right_images.append(pygame.image.load(load_url).convert_alpha())
 
-def moving_animation_left_list() -> list:
-    return animate(mv_animation_left_url)
+        load_url = "character_sprites/Fighter/attack_1_left_images/Attack_1_left_" + str(i+1) + ".png"
+        fighter_attack_1_left_images.append(pygame.image.load(load_url).convert_alpha())
+    return (fighter_attack_1_right_images, fighter_attack_1_left_images)
 
-def attack_animation_right_list() -> list:
-    return animate(attack_animation_right_url)
+def get_attack_2_images():
+    fighter_attack_2_right_images = []
+    fighter_attack_2_left_images = []
+    for i in range (3):
+        load_url = "character_sprites/Fighter/attack_2_right_images/Attack_2_right_" + str(i+1) + ".png"
+        fighter_attack_2_right_images.append(pygame.image.load(load_url).convert_alpha())
 
-def attack_animation_left_list() -> list:
-    return animate(attack_animation_left_url)    
+        load_url = "character_sprites/Fighter/attack_2_left_images/Attack_2_left_" + str(i+1) + ".png"
+        fighter_attack_2_left_images.append(pygame.image.load(load_url).convert_alpha())
+    return (fighter_attack_2_right_images, fighter_attack_2_left_images)
 
-def animate(url):
-    sprite_sheet = Image.open(url)
-    image_width = sprite_sheet.size[0]
-    image_height = sprite_sheet.size[1]
-    array_of_animations = []
-    for i in range(0, image_width, width):
-        frame = spritesheet.get_image(url, i, width, height, BG)
-        array_of_animations.append(frame)
-    return array_of_animations
+def get_jump_images():    
+    fighter_jump_right_images = []
+    fighter_jump_left_images = []
+    for i in range(1):
+        load_url = "character_sprites/Fighter/jump_right_images/Jump_right_" + str(i+1) + ".png"
+        fighter_jump_right_images.append(pygame.image.load(load_url).convert_alpha())
+
+        load_url = "character_sprites/Fighter/jump_left_images/Jump_left_" + str(i+1) + ".png"
+        fighter_jump_left_images.append(pygame.image.load(load_url).convert_alpha())
+        return (fighter_jump_right_images, fighter_jump_left_images)
     
 
 
-def get_image(frame, type):
-    if type == "idle":
-        return spritesheet.get_image(idle_animation_url, frame, width, height, BG)
-    elif type == "attack_right":
-        return spritesheet.get_image(attack_animation_right_url, frame, width, height, BG)
-    elif type == "attack_left":
-        return spritesheet.get_image(attack_animation_left_url, frame, width, height, BG)
-
-
-
-
-    
-def get_idle_frame():
-    return spritesheet.get_image(idle_animation_url, 0, width, height, BG)
 
 
