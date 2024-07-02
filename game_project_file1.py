@@ -39,8 +39,10 @@ background = background_class.Background(displaysurface)
 ground = ground_class.Ground(displaysurface)
 ground_group = pygame.sprite.Group()
 ground_group.add(ground)
-player = player_class.Player(vec, displaysurface, "samurai")
+player = player_class.Player(vec, displaysurface, "fighter")
 player_2 = player_class.Player_2(vec, displaysurface, "samurai")
+
+
 player_group = pygame.sprite.Group()
 player_group.add(player)
 player_2_group = pygame.sprite.Group()

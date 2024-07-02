@@ -1,7 +1,6 @@
 import pygame
 from pygame.locals import *
 import spritesheet
-import sys
 
 
 ACC = 0.3
@@ -30,6 +29,7 @@ class Player(pygame.sprite.Sprite):
         self.jump_right_images = []
         self.jump_left_images = []
         self.load_sprites(type)
+        print("player1 type: " + self.type)
 
 
         BG = (0,0,0)
@@ -221,11 +221,20 @@ class Player(pygame.sprite.Sprite):
         if self.attack_frame == 4:
             self.pos.x += 20
 
+    def __str__(self):
+        return f"{self.type}"    
+
+
 class Player_2(Player):
     def __init__(self, vec, screen, type):
         super().__init__(vec, screen, type)
+        self.load_sprites(type)
         self.pos = vec((200, 240))
         self.direction = "RIGHT"
+        self.type = type
+        self.load_sprites(self.type)
+        print("player2 type: " + self.type)
+        
     
 
     def gravity_check(self, player_2, ground_group):

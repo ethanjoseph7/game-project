@@ -5,17 +5,17 @@ import fighter_sprite
 import samurai_sprite
 
 
-sprites = []
+
 
 def load_sprites(type):
     if type == "fighter":
-        load_fighter_sprite()
-        return sprites
+        return load_fighter_sprite()
     elif type == "samurai":
-        load_samurai_sprite()
-        return sprites
+        return load_samurai_sprite()
+        
     
 def load_fighter_sprite():
+    sprites = []
     sprites.append(fighter_sprite.get_idle_images()[0])
     sprites.append(fighter_sprite.get_idle_images()[1])
 
@@ -34,9 +34,7 @@ def load_fighter_sprite():
     return sprites
 
 def load_samurai_sprite():
-    sprites.append(samurai_sprite.get_idle_images()[0])
-    sprites.append(samurai_sprite.get_idle_images()[1])
-
+    sprites = []
     sprites.append(samurai_sprite.get_idle_images()[0])
     sprites.append(samurai_sprite.get_idle_images()[1])
 
