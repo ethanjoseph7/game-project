@@ -6,8 +6,10 @@ class Ground(pygame.sprite.Sprite):
         super().__init__()
         ground_url = "platforms/water_2.png"
         self.image = pygame.image.load(ground_url)
-        self.rect = self.image.get_rect(center = (850, 875))
         self.screen = displaysurface
-                                        
+        width = self.screen.get_width()
+        height = self.screen.get_height()
+        self.rect = self.image.get_rect(center = (width/2, height-25))
+        
     def render(self):
         self.screen.blit(self.image, (self.rect.x, self.rect.y))  
