@@ -136,8 +136,8 @@ class Player(pygame.sprite.Sprite):
         hits = pygame.sprite.spritecollide(player, ground_group, False)
         hits_platform = pygame.sprite.spritecollide(player, platform_group, False)
         if self.vel.y > 0:
-            if hits_ground:
-                lowest = hits_ground[0]
+            if hits:
+                lowest = hits[0]
                 if self.pos.y < lowest.rect.bottom + self.vel.y:
                     self.pos.y = lowest.rect.top + 1 
                     self.vel.y = 0
