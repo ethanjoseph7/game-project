@@ -43,6 +43,7 @@ class Player(pygame.sprite.Sprite):
 
         self.jumping = False
         self.running = False
+        self.falling = False
         self.last_update = pygame.time.get_ticks()
  
         # Position and direction
@@ -150,13 +151,15 @@ class Player(pygame.sprite.Sprite):
                     self.vel.y = 0
                     self.jumping = False
                     self.double_jump = False
-            elif hits_platform:
+                    player.falling = False
+            elif hits_platform and not self.falling:
                 lowest = hits_platform[0]
                 if self.pos.y <= lowest.rect.bottom + self.vel.y:
                     self.pos.y = lowest.rect.top + 1 
                     self.vel.y = 0
                     self.jumping = False
                     self.double_jump = False
+                    player.falling = False
 
     def jump(self, ground_group, platform_group):
         self.rect.x +=1 
@@ -173,7 +176,12 @@ class Player(pygame.sprite.Sprite):
         elif self.jumping and not self.double_jump:
             self.double_jump = True
             self.vel.y = -14
-
+            
+    def fall(self, platform_group):
+        hits_platform = pygame.sprite.spritecollide(self, platform_group, False)
+        if hits_platform and not self.falling:
+            self.falling = True
+            self.vel.y = 3.5
             
 
     def update(self):
@@ -182,10 +190,8 @@ class Player(pygame.sprite.Sprite):
             self.move_frame = 0
             return
         
-        # when idling
-
-        # change image when jumping
-        if self.jumping == True:
+        # change image when jumping or falling
+        if self.jumping == True or self.falling:
             if self.direction == "RIGHT":
                 self.image = self.jump_right_images[0]
             else:

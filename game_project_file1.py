@@ -94,6 +94,8 @@ def main():
                         displaysurface = pygame.display.set_mode((displaysurface.get_width(), displaysurface.get_height()), pygame.RESIZABLE)
                 if event.key == pygame.K_UP:
                     player.jump(ground_group, platform_group)
+                if event.key == pygame.K_DOWN:
+                    player.fall(platform_group)
                 if event.key == pygame.K_RSHIFT:
                     if not player.attacking:
                         player.attack()
@@ -102,6 +104,9 @@ def main():
                             print("player hits")
                 if event.key == pygame.K_w:
                     player_2.jump(ground_group, platform_group)
+                if event.key == pygame.K_s:
+                    player_2.fall(platform_group)
+                
                 if event.key == pygame.K_LSHIFT:
                     if not player_2.attacking:
                         player_2.attack()
