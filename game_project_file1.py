@@ -90,6 +90,8 @@ def main():
 
                 if event.key == pygame.K_UP:
                     player.jump(ground_group, platform_group)
+                if event.key == pygame.K_DOWN:
+                    player.fall(platform_group)
                 if event.key == pygame.K_RSHIFT:
                     if player.attacking == FALSE:
                         player.attack()
@@ -99,6 +101,9 @@ def main():
                 
                 if event.key == pygame.K_w:
                     player_2.jump(ground_group, platform_group)
+                if event.key == pygame.K_s:
+                    player_2.fall(platform_group)
+                
                 if event.key == pygame.K_LSHIFT:
                     if player_2.attacking == FALSE:
                         player_2.attack()
@@ -112,6 +117,7 @@ def main():
 
         player.gravity_check(player, ground_group, platform_group)
         player_2.gravity_check(player_2, ground_group, platform_group)
+
         # Render Functions ------
         background.render() 
         ground.render()
