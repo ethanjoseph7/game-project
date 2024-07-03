@@ -20,6 +20,7 @@ FPS = 60
 FPS_CLOCK = pygame.time.Clock()
 COUNT = 0
 BG = (0,0,0)
+SIZE_MULTIPLIER = 1.9 * 1.5
 
 
 
@@ -45,11 +46,16 @@ def main():
     player_2_group = pygame.sprite.Group()
     player_2_group.add(player_2)
 
-    platform1 = platforms.Platform(150, 250, 100, 30, displaysurface)
-    platform2 = platforms.Platform(300, 150, 100, 30, displaysurface)
-    platform3 = platforms.Platform(450, 200, 100, 30, displaysurface)
+
+    platform_width = 100 * SIZE_MULTIPLIER * 1.3
+    platform_height = 30 * SIZE_MULTIPLIER
+    platform1 = platforms.Platform(WIDTH * 0.1, HEIGHT/1.65, platform_width, platform_height, displaysurface, SIZE_MULTIPLIER)
+    platform2 = platforms.Platform(WIDTH * 0.40, HEIGHT/2.8, platform_width, platform_height, displaysurface, SIZE_MULTIPLIER)
+    platform3 = platforms.Platform(WIDTH * 0.70, HEIGHT/1.65, platform_width, platform_height, displaysurface, SIZE_MULTIPLIER)
     platform_group = pygame.sprite.Group()
     platform_group.add(platform1, platform2, platform3)
+
+    fullscreen = False
 
         # game loop
     while True:
@@ -61,13 +67,27 @@ def main():
             if event.type == QUIT:
                 pygame.quit()
                 sys.exit()
-        
+
+            if event.type == VIDEORESIZE:
+                if not fullscreen:
+                    displaysurface = pygame.display.set_mode((event.w, event.h), pygame.RESIZABLE)
             
             if event.type == pygame.MOUSEBUTTONDOWN:
                 pass
         
                 # Event handling for a range of different key presses    
             if event.type == pygame.KEYDOWN:
+
+                if event.key == pygame.K_ESCAPE:
+                    pygame.quit()
+                    sys.exit()
+                if event.key == pygame.K_f:
+                    fullscreen = not fullscreen
+                    if fullscreen:
+                        displaysurface = pygame.display.set_mode( (displaysurface.get_width(), displaysurface.get_width()), pygame.FULLSCREEN)
+                    else:
+                        displaysurface = pygame.display.set_mode( (displaysurface.get_width(), displaysurface.get_width()), pygame.FULLSCREEN)
+
                 if event.key == pygame.K_UP:
                     player.jump(ground_group, platform_group)
                 if event.key == pygame.K_RSHIFT:

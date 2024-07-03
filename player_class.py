@@ -3,7 +3,7 @@ from pygame.locals import *
 import spritesheet
 
 
-ACC = 0.3
+ACC = 0.7
 FRIC = -0.10
 HEIGHT = 900
 WIDTH = 1700
@@ -122,7 +122,7 @@ class Player(pygame.sprite.Sprite):
         #velocity calculations
         self.acc.x += self.vel.x * FRIC
         self.vel += self.acc
-        self.pos += self.vel + 0.5 * self.acc
+        self.pos += self.vel + 0.9 * self.acc
 
         #player warping
         if self.pos.x > WIDTH:
@@ -161,11 +161,11 @@ class Player(pygame.sprite.Sprite):
 
         if (hits or hits_platform) and not self.jumping:
             self.jumping = True
-            self.vel.y = -12
+            self.vel.y = -18
 
         elif self.jumping and not self.double_jump:
             self.double_jump = True
-            self.vel.y = -8
+            self.vel.y = -14
 
             
 

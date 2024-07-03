@@ -4,11 +4,12 @@ import pygame
 
 
 class Platform(pygame.sprite.Sprite):
-    def __init__(self, x, y, width, height, displaySurface):
+    def __init__(self, x, y, width, height, displaySurface, SIZE_MULTIPLIER):
         super().__init__()
         self.image = pygame.Surface((width, height))
         platform_url = "platforms/Ground2.png"
         platform_image = pygame.image.load(platform_url)  # Load the image for the platform
+        platform_image = pygame.transform.scale(platform_image, (platform_image.get_width()* SIZE_MULTIPLIER * 1.3, platform_image.get_height()*SIZE_MULTIPLIER))
         self.image.blit(platform_image, (0, 0), (0, 0, width, height))  # Crop the image to the specified width and height
         self.rect = self.image.get_rect()
         self.rect.x = x  # Set the x-coordinate of the platform
