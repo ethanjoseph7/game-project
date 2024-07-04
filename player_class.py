@@ -67,11 +67,9 @@ class Player(pygame.sprite.Sprite):
         self.jumping = False
         self.running = False
         self.move_frame = 0
-        
-        #Health
-        self.health = 100
 
-    
+        # Health
+        self.health = 100
 
         
 
@@ -146,15 +144,8 @@ class Player(pygame.sprite.Sprite):
         if self.vel.y > 0:
             if hits:
                 lowest = hits[0]
-                if self.pos.y < lowest.rect.bottom + self.vel.y:
-                    self.pos.y = lowest.rect.top + 1 
-                    self.vel.y = 0
-                    self.jumping = False
-                    self.double_jump = 2
-            elif hits_platform:
-                lowest = hits_platform[0]
-                if self.pos.y <= lowest.rect.bottom + self.vel.y:
-                    self.pos.y = lowest.rect.top + 1 
+                if self.pos.y < lowest.rect.bottom:
+                    self.pos.y = lowest.rect.top +1 
                     self.vel.y = 0
                     self.jumping = False
                     self.double_jump = False
