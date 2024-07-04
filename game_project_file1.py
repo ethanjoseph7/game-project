@@ -3,6 +3,7 @@ from pygame.locals import *
 import sys
 import random
 import ctypes
+import ctypes
 from tkinter import filedialog
 from tkinter import *
 import ground_class
@@ -20,18 +21,7 @@ FPS_CLOCK = pygame.time.Clock()
 COUNT = 0
 BG = (0, 0, 0)
 SIZE_MULTIPLIER = 1.9 * 1.5
-RED = (255, 0, 0)
-YELLOW = (255, 255, 0)
-WHITE = (255, 255, 255)
 
-def bring_window_to_front():
-    wm_info = pygame.display.get_wm_info()
-    if 'window' in wm_info:
-        hwnd = wm_info['window']
-        ctypes.windll.user32.SetForegroundWindow(hwnd)
-    else:
-        print("Warning: 'window' key not found in wm_info. Unable to bring window to front.")
-        
 
 
 def main():
@@ -51,6 +41,7 @@ def main():
 
     # Delayed imports and initializations
     import player_class
+
     background = background_class.Background(displaysurface)
     ground = ground_class.Ground(displaysurface)
     ground_group = pygame.sprite.Group()
@@ -74,10 +65,13 @@ def main():
     platform_group.add(platform1, platform2, platform3)
 
     fullscreen = False
-    
+
     font = pygame.font.SysFont('Arial', 24)
 
-    # Game loop
+    players = (player, player_2)
+
+
+    # game loop
     while True:
         FPS_CLOCK.tick(FPS)
         player.idle()
@@ -112,9 +106,11 @@ def main():
                     if not player.attacking:
                         player.attack()
                         hits = pygame.sprite.spritecollide(player, player_2_group, False)
-                        if hits:
+                        is_in_front = player.in_front_of(player_2)
+                        if hits and is_in_front:
                             print("player hits")
-                            player_2.health =- 1 
+                            
+                
                 if event.key == pygame.K_w:
                     player_2.jump(ground_group, platform_group)
                 if event.key == pygame.K_s:
@@ -123,10 +119,15 @@ def main():
                 if event.key == pygame.K_LSHIFT:
                     if not player_2.attacking:
                         player_2.attack()
+                        is_in_front = player_2.in_front_of(player)
                         hits = pygame.sprite.spritecollide(player_2, player_group, False)
-                        if hits:
+                        if hits and is_in_front:
                             print("player 2 hits")
-                            player.health =- 1
+                
+                    
+                    
+                
+
 
         player.gravity_check(player, ground_group, platform_group)
         player_2.gravity_check(player_2, ground_group, platform_group)
@@ -149,9 +150,13 @@ def main():
         player.move()
         player.update()
         player_2.update()
-        
-        
-        # Render player numbers above each player
+        assign_player_tags(displaysurface, font, players)
+        pygame.display.update() 
+
+
+def assign_player_tags(displaysurface, font, players):
+        player = players[0]
+        player_2 = players[1]
         player_text_surface = font.render("Player 1", True, (255, 255, 255))
         player_text_rect = player_text_surface.get_rect(center=(player.rect.centerx, player.rect.top - 20))
         displaysurface.blit(player_text_surface, player_text_rect)
@@ -159,11 +164,8 @@ def main():
         player_2_text_surface = font.render("Player 2", True, (255, 255, 255))
         player_2_text_rect = player_2_text_surface.get_rect(center=(player_2.rect.centerx, player_2.rect.top - 20))
         displaysurface.blit(player_2_text_surface, player_2_text_rect)
-        
-        draw_health_bar(player.health, 20, 40)
-        draw_health_bar(player_2.health, 1280, 40)
-        
-        pygame.display.update()
 
-if __name__ == "__main__":
-    main()
+
+
+if __name__=="__main__": 
+    main() 
