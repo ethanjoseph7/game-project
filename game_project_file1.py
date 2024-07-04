@@ -20,6 +20,9 @@ FPS_CLOCK = pygame.time.Clock()
 COUNT = 0
 BG = (0, 0, 0)
 SIZE_MULTIPLIER = 1.9 * 1.5
+RED = (255, 0, 0)
+YELLOW = (255, 255, 0)
+WHITE = (255, 255, 255)
 
 def bring_window_to_front():
     wm_info = pygame.display.get_wm_info()
@@ -28,6 +31,8 @@ def bring_window_to_front():
         ctypes.windll.user32.SetForegroundWindow(hwnd)
     else:
         print("Warning: 'window' key not found in wm_info. Unable to bring window to front.")
+        
+
 
 def main():
     vec = pygame.math.Vector2  # 2 for two dimensional
@@ -36,6 +41,13 @@ def main():
     displaysurface = pygame.display.set_mode((WIDTH, HEIGHT))
     pygame.display.set_caption("Game")
     bring_window_to_front()
+    
+    #function for drawing fighter health bars
+    def draw_health_bar(health, x, y):
+        ratio = health / 100
+        pygame.draw.rect(displaysurface, WHITE, (x - 2, y - 2, 404, 34))
+        pygame.draw.rect(displaysurface, RED, (x, y, 400, 30))
+        pygame.draw.rect(displaysurface, YELLOW, (x, y, 400 * ratio, 30))
 
     # Delayed imports and initializations
     import player_class
@@ -102,6 +114,7 @@ def main():
                         hits = pygame.sprite.spritecollide(player, player_2_group, False)
                         if hits:
                             print("player hits")
+                            player_2.health =- 1 
                 if event.key == pygame.K_w:
                     player_2.jump(ground_group, platform_group)
                 if event.key == pygame.K_s:
@@ -113,6 +126,7 @@ def main():
                         hits = pygame.sprite.spritecollide(player_2, player_group, False)
                         if hits:
                             print("player 2 hits")
+                            player.health =- 1
 
         player.gravity_check(player, ground_group, platform_group)
         player_2.gravity_check(player_2, ground_group, platform_group)
@@ -145,6 +159,9 @@ def main():
         player_2_text_surface = font.render("Player 2", True, (255, 255, 255))
         player_2_text_rect = player_2_text_surface.get_rect(center=(player_2.rect.centerx, player_2.rect.top - 20))
         displaysurface.blit(player_2_text_surface, player_2_text_rect)
+        
+        draw_health_bar(player.health, 20, 40)
+        draw_health_bar(player_2.health, 1280, 40)
         
         pygame.display.update()
 

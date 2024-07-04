@@ -67,6 +67,9 @@ class Player(pygame.sprite.Sprite):
         self.jumping = False
         self.running = False
         self.move_frame = 0
+        
+        #Health
+        self.health = 100
 
         
 
