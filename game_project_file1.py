@@ -22,13 +22,17 @@ FPS_CLOCK = pygame.time.Clock()
 COUNT = 0
 BG = (0,0,0)
 SIZE_MULTIPLIER = 1.9 * 1.5
+RED = (255, 0, 0)
+#YELLOW = (255, 255, 0)
+WHITE = (255, 255, 255)
+BLACK = (0,0,0)
 
 
 def bring_window_to_front():
     wm_info = pygame.display.get_wm_info()
     if 'window' in wm_info:
         hwnd = wm_info['window']
-        #ctypes.windll.user32.SetForegroundWindow(hwnd)
+        ctypes.windll.user32.SetForegroundWindow(hwnd)
         pass
     else:
         print("Warning: 'window' key not found in wm_info. Unable to bring window to front.")
@@ -71,7 +75,11 @@ def main():
     font = pygame.font.SysFont('Arial', 24)
 
     players = (player, player_2)
-
+    def draw_health_bar(health, x, y):
+        ratio = health / 100
+        pygame.draw.rect(displaysurface, WHITE, (x - 3, y - 2, 404, 34))
+        pygame.draw.rect(displaysurface, RED, (x, y, 400, 30))
+        pygame.draw.rect(displaysurface, BLACK, (x, y, 400 * ratio, 30))
 
     # game loop
     while True:
@@ -142,6 +150,8 @@ def main():
         background.render() 
         ground.render()
         platform_group.draw(displaysurface)
+        draw_health_bar(player.health, 20, 30)
+        draw_health_bar(player_2.health, 1280, 30)
         player_2.update()
         player.update()
         if player.attacking:
