@@ -21,8 +21,18 @@ FPS_CLOCK = pygame.time.Clock()
 COUNT = 0
 BG = (0, 0, 0)
 SIZE_MULTIPLIER = 1.9 * 1.5
+RED = (255, 0, 0)
+YELLOW = (255, 255, 0)
+WHITE = (255, 255, 255)
 
 
+def bring_window_to_front():
+    wm_info = pygame.display.get_wm_info()
+    if 'window' in wm_info:
+        hwnd = wm_info['window']
+        ctypes.windll.user32.SetForegroundWindow(hwnd)
+    else:
+        print("Warning: 'window' key not found in wm_info. Unable to bring window to front.")
 
 def main():
     vec = pygame.math.Vector2  # 2 for two dimensional
@@ -151,6 +161,9 @@ def main():
         player.update()
         player_2.update()
         assign_player_tags(displaysurface, font, players)
+        
+        draw_health_bar(player.health, 20, 20)
+        draw_health_bar(player_2.health, 1280, 20)
         pygame.display.update() 
 
 

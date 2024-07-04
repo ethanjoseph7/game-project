@@ -71,8 +71,7 @@ class Player(pygame.sprite.Sprite):
         #Health
         self.health = 100
 
-        # Health
-        self.health = 100
+    
 
         
 
