@@ -68,6 +68,9 @@ class Player(pygame.sprite.Sprite):
         self.running = False
         self.move_frame = 0
 
+        # Health
+        self.health = 100
+
         
 
 
@@ -136,6 +139,8 @@ class Player(pygame.sprite.Sprite):
     def gravity_check(self, player, ground_group, platform_group):
         hits = pygame.sprite.spritecollide(player, ground_group, False)
         hits_platform = pygame.sprite.spritecollide(player, platform_group, False)
+        if self.vel.y < 0:
+            self.falling = False
         if self.vel.y > 0:
             if hits:
                 lowest = hits[0]
@@ -156,6 +161,7 @@ class Player(pygame.sprite.Sprite):
 
     def jump(self, ground_group, platform_group):
         self.rect.x +=1 
+        self.falling = False
         #check to see if player contacts ground
         hits = pygame.sprite.spritecollide(self, ground_group, False)
         hits_platform = pygame.sprite.spritecollide(self, platform_group, False)
@@ -235,6 +241,14 @@ class Player(pygame.sprite.Sprite):
             self.pos.x -=20
         if self.attack_frame == 4:
             self.pos.x += 20
+    
+    def in_front_of(self,player2):
+        if self.direction == "RIGHT" and player2.pos.x > self.pos.x:
+            return True
+        elif self.direction == "LEFT" and player2.pos.x < self.pos.x:
+            return True
+        return False
+    
 
     def __str__(self):
         return f"{self.type}"    

@@ -112,8 +112,10 @@ def main():
                     if player.attacking == FALSE:
                         player.attack()
                         hits = pygame.sprite.spritecollide(player, player_2_group, False)
-                        if hits:
+                        is_in_front = player.in_front_of(player_2)
+                        if hits and is_in_front:
                             print("player hits")
+                            
                 
                 if event.key == pygame.K_w:
                     player_2.jump(ground_group, platform_group)
@@ -123,9 +125,11 @@ def main():
                 if event.key == pygame.K_LSHIFT:
                     if player_2.attacking == FALSE:
                         player_2.attack()
+                        is_in_front = player_2.in_front_of(player)
                         hits = pygame.sprite.spritecollide(player_2, player_group, False)
-                        if hits:
+                        if hits and is_in_front:
                             print("player 2 hits")
+                
                     
                     
                 
