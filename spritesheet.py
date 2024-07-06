@@ -28,6 +28,9 @@ def load_fighter_sprite():
     sprites.append(fighter_sprite.get_attack_2_images()[0])
     sprites.append(fighter_sprite.get_attack_2_images()[1])
 
+    sprites.append(fighter_sprite.get_attack_3_images()[0])
+    sprites.append(fighter_sprite.get_attack_3_images()[1])
+
     sprites.append(fighter_sprite.get_jump_images()[0])
     sprites.append(fighter_sprite.get_jump_images()[1])
 
@@ -46,6 +49,9 @@ def load_samurai_sprite():
 
     sprites.append(samurai_sprite.get_attack_2_images()[0])
     sprites.append(samurai_sprite.get_attack_2_images()[1])
+
+    sprites.append(samurai_sprite.get_attack_3_images()[0])
+    sprites.append(samurai_sprite.get_attack_3_images()[1])
 
     sprites.append(samurai_sprite.get_jump_images()[0])
     sprites.append(samurai_sprite.get_jump_images()[1])

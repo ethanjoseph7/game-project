@@ -72,6 +72,8 @@ def main():
 
     players = (player, player_2)
 
+    last = pygame.time.get_ticks()
+
 
     # game loop
     while True:
@@ -110,11 +112,15 @@ def main():
                     player.fall(platform_group)
                 if event.key == pygame.K_RSHIFT:
                     if player.attacking == FALSE:
+                        if(pygame.time.get_ticks() - 750 > last):
+                            player.attack_sheet = 0
+                            player.attack_frame = 0
                         player.attack()
                         hits = pygame.sprite.spritecollide(player, player_2_group, False)
                         is_in_front = player.in_front_of(player_2)
                         if hits and is_in_front:
                             print("player hits")
+                        last = pygame.time.get_ticks()
                             
                 
                 if event.key == pygame.K_w:

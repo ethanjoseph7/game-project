@@ -59,7 +59,7 @@ def get_attack_1_images():
 def get_attack_2_images():
     samurai_attack_2_right_images = []
     samurai_attack_2_left_images = []
-    for i in range (3):
+    for i in range (12):
         load_url = "character_sprites/Samurai/attack_2_right_images/Attack_2_right_" + str(i+1) + ".png"
         image = pygame.image.load(load_url).convert_alpha()
         bigger_img = pygame.transform.scale(image, (image.get_width()*SIZE_MULTIPLIER, image.get_height()*SIZE_MULTIPLIER))
@@ -71,6 +71,22 @@ def get_attack_2_images():
         samurai_attack_2_left_images.append(bigger_img)
 
     return (samurai_attack_2_right_images, samurai_attack_2_left_images)
+
+def get_attack_3_images():
+    samurai_attack_3_right_images = []
+    samurai_attack_3_left_images = []
+    for i in range (12):
+        load_url = "character_sprites/Samurai/attack_3_right_images/Attack_3_right_" + str(i+1) + ".png"
+        image = pygame.image.load(load_url).convert_alpha()
+        bigger_img = pygame.transform.scale(image, (image.get_width()*SIZE_MULTIPLIER, image.get_height()*SIZE_MULTIPLIER))
+        samurai_attack_3_right_images.append(bigger_img)
+
+        load_url = "character_sprites/Samurai/attack_3_left_images/Attack_3_left_" + str(i+1) + ".png"
+        image = pygame.image.load(load_url).convert_alpha()
+        bigger_img = pygame.transform.scale(image, (image.get_width()*SIZE_MULTIPLIER, image.get_height()*SIZE_MULTIPLIER))
+        samurai_attack_3_left_images.append(bigger_img)
+
+    return (samurai_attack_3_right_images, samurai_attack_3_left_images)
 
 def get_jump_images():    
     samurai_jump_right_images = []
