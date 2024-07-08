@@ -9,14 +9,15 @@ import ground_class
 import background_class
 import platforms
 from bat_swarm import BatSwarm
+import player_class
 
 pygame.init()
 
 HEIGHT = 900
 WIDTH = 1700
 ACC = 0.3
-FRIC = -0.10
-FPS = 60
+FRIC = -0.7
+FPS = 90
 FPS_CLOCK = pygame.time.Clock()
 COUNT = 0
 BG = (0, 0, 0)
@@ -53,7 +54,7 @@ def main():
     displaysurface = pygame.display.set_mode((WIDTH, HEIGHT))
     pygame.display.set_caption("Game")
     bring_window_to_front()
-    import player_class
+    
 
     background = background_class.Background(displaysurface)
     ground = ground_class.Ground(displaysurface)
@@ -84,6 +85,9 @@ def main():
 
     font = pygame.font.SysFont('Arial', 24)
 
+<<<<<<< HEAD
+    # Game loop
+=======
     players = (player, player_2)
 
    
@@ -154,12 +158,19 @@ def main():
                 if event.key == pygame.K_DOWN:
                     player.fall(platform_group)
                 if event.key == pygame.K_RSHIFT:
-                    if player.attacking == FALSE:
+                    if not player.attacking:
+                        if(pygame.time.get_ticks() - 750 > last):
+                            player.attack_sheet = 0
+                            player.attack_frame = 0
+
                         player.attack()
                         hits = pygame.sprite.spritecollide(player, player_2_group, False)
-                        is_in_front = player.in_front_of(player_2)
-                        if hits and is_in_front:
-                            print("player hits")
+                        if hits:
+
+                            player_2.health =- 1 
+
+                        last = pygame.time.get_ticks()
+                            
 
                 if event.key == pygame.K_w:
                     player_2.jump(ground_group, platform_group)
@@ -214,6 +225,9 @@ def assign_player_tags(displaysurface, font, players):
     player_2_text_surface = font.render("Player 2", True, (255, 255, 255))
     player_2_text_rect = player_2_text_surface.get_rect(center=(player_2.rect.centerx, player_2.rect.top - 20))
     displaysurface.blit(player_2_text_surface, player_2_text_rect)
+    
+        
+    pygame.display.update()
 
 if __name__ == "__main__":
     main()

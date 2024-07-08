@@ -3,7 +3,7 @@ from pygame.locals import *
 import spritesheet
 
 
-ACC = 0.7
+ACC = 0.5
 FRIC = -0.10
 HEIGHT = 900
 WIDTH = 1700
@@ -107,7 +107,7 @@ class Player(pygame.sprite.Sprite):
         self.idle_frame += 0.1
 
     def move(self):
-        self.acc = self.vec(0,0.5)
+        self.acc = self.vec(0,0.3)
 
         if abs(self.vel.x) > 0.3:
             self.running = True
@@ -170,17 +170,17 @@ class Player(pygame.sprite.Sprite):
 
         if (hits or hits_platform) and not self.jumping:
             self.jumping = True
-            self.vel.y = -18
+            self.vel.y = -16
 
         elif self.jumping and not self.double_jump:
             self.double_jump = True
-            self.vel.y = -14
+            self.vel.y = -12
             
     def fall(self, platform_group):
         hits_platform = pygame.sprite.spritecollide(self, platform_group, False)
         if hits_platform and not self.falling:
             self.falling = True
-            self.vel.y = 3.5
+            self.vel.y = 3
             
 
     def update(self):
