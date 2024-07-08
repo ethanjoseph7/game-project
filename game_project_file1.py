@@ -9,6 +9,7 @@ import ground_class
 import background_class
 import platforms
 from ctypes import *
+import player_class
 
 pygame.init()
 
@@ -37,34 +38,27 @@ def bring_window_to_front():
 '''
 
 
-def main():
+def play_game():
     vec = pygame.math.Vector2  # 2 for two dimensional
     FramePerSec = pygame.time.Clock()
 
     displaysurface = pygame.display.set_mode((WIDTH, HEIGHT))
     pygame.display.set_caption("Game")
     #bring_window_to_front()
-    
-    #function for drawing fighter health bars
-    def draw_health_bar(health, x, y):
-        ratio = health / 100
-        pygame.draw.rect(displaysurface, WHITE, (x - 2, y - 2, 404, 34))
-        pygame.draw.rect(displaysurface, RED, (x, y, 400, 30))
-        pygame.draw.rect(displaysurface, YELLOW, (x, y, 400 * ratio, 30))
 
     # Delayed imports and initializations
-    import player_class
+    
     background = background_class.Background(displaysurface)
     ground = ground_class.Ground(displaysurface)
     ground_group = pygame.sprite.Group()
     ground_group.add(ground)
     player1_type = "fighter"  # input("player one, fighter or samurai? ")
     player2_type = "samurai"  # input("player two, fighter or samurai? ")
-    player = player_class.Player(vec, displaysurface, player1_type)
+    player_1 = player_class.Player(vec, displaysurface, player1_type)
     player_2 = player_class.Player_2(vec, displaysurface, player2_type)
 
     player_group = pygame.sprite.Group()
-    player_group.add(player)
+    player_group.add(player_1)
     player_2_group = pygame.sprite.Group()
     player_2_group.add(player_2)
 
@@ -81,15 +75,34 @@ def main():
     font = pygame.font.SysFont('Arial', 24)
 
 
-    # Game loop
 
-    players = (player, player_2)
+    players = (player_1, player_2)
 
-    def draw_health_bar(health, x, y):
-        ratio = health / 100
-        pygame.draw.rect(displaysurface, WHITE, (x - 3, y - 2, 404, 34))
-        pygame.draw.rect(displaysurface, RED, (x, y, 400, 30))
-        pygame.draw.rect(displaysurface, BLACK, (x, y, 400 * ratio, 30))
+
+    # Function for creating health bar
+    def draw_health_bar(player, x, y):
+        ratio = player.health / 100
+        if(ratio  == 0):
+            if player.number == 1:
+                print("player 2 wins")
+            else:
+                print("player 1 wins")
+            pygame.quit()
+            sys.exit()
+            
+        if player.number == 1:
+            pygame.draw.rect(displaysurface, WHITE, (x - 3, y - 2, 404, 34))
+            pygame.draw.rect(displaysurface, RED, (x, y, 400, 30))
+            pygame.draw.rect(displaysurface, BLACK, (x, y, 400*(1-ratio), 30))
+        elif player.number == 2:
+            pygame.draw.rect(displaysurface, WHITE, (x - 3, y - 2, 404, 34))
+            pygame.draw.rect(displaysurface, BLACK, (x, y, 400, 30))
+            pygame.draw.rect(displaysurface, RED, (x, y, 400*ratio, 30))
+
+
+    def update_health():
+        draw_health_bar(player_2, 20, 30)
+        draw_health_bar(player_1, 1280, 30)
 
 
     last = pygame.time.get_ticks()
@@ -100,49 +113,41 @@ def main():
 
     while True:
         FPS_CLOCK.tick(FPS)
-        player.idle()
+        player_1.idle()
         player_2.idle()
         for event in pygame.event.get():
             if event.type == QUIT:
                 pygame.quit()
                 sys.exit()
-
-            if event.type == VIDEORESIZE:
-                if not fullscreen:
-                    displaysurface = pygame.display.set_mode((event.w, event.h), pygame.RESIZABLE)
-
-            if event.type == pygame.MOUSEBUTTONDOWN:
-                pass
-
+    
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
                     pygame.quit()
                     sys.exit()
-                if event.key == pygame.K_f:
-                    fullscreen = not fullscreen
-                    if fullscreen:
-                        displaysurface = pygame.display.set_mode((displaysurface.get_width(), displaysurface.get_height()), pygame.FULLSCREEN)
-                    else:
-                        displaysurface = pygame.display.set_mode((displaysurface.get_width(), displaysurface.get_height()), pygame.RESIZABLE)
+
+                #Player 1 controls
                 if event.key == pygame.K_UP:
-                    player.jump(ground_group, platform_group)
+                    player_1.jump(ground_group, platform_group)
+
                 if event.key == pygame.K_DOWN:
-                    player.fall(platform_group)
+                    player_1.fall(platform_group)
+
                 if event.key == pygame.K_RSHIFT:
-                    if not player.attacking:
+                    if not player_1.attacking:
                         if(pygame.time.get_ticks() - 750 > last):
-                            player.attack_sheet = 0
-                            player.attack_frame = 0
+                            player_1.attack_sheet = 0
+                            player_1.attack_frame = 0
 
-                        player.attack()
-                        hits = pygame.sprite.spritecollide(player, player_2_group, False)
-                        if hits:
+                        player_1.attack()
+                        hits = pygame.sprite.spritecollide(player_1, player_2_group, False)
+                        if hits and player_1.facing(player_2):
 
-                            player_2.health =- 1 
+                            player_2.health = player_2.health - 10
+                            update_health()
 
                         last = pygame.time.get_ticks()
                             
-
+                #Player 2 controls
                 if event.key == pygame.K_w:
                     player_2.jump(ground_group, platform_group)
                 if event.key == pygame.K_s:
@@ -152,38 +157,38 @@ def main():
                     if not player_2.attacking:
                         player_2.attack()
                         hits = pygame.sprite.spritecollide(player_2, player_group, False)
-                        if hits:
-                            print("player 2 hits")
-                            player.health =- 1
+                        if hits and player_2.facing(player_1):
+                            player_1.health -= 10
+                            update_health
 
-        player.gravity_check(player, ground_group, platform_group)
+        player_1.gravity_check(player_1, ground_group, platform_group)
         player_2.gravity_check(player_2, ground_group, platform_group)
 
         # Render Functions ------
         background.render()
         ground.render()
         platform_group.draw(displaysurface)
-        draw_health_bar(player.health, 20, 30)
-        draw_health_bar(player_2.health, 1280, 30)
+        
+        update_health()
         player_2.update()
-        player.update()
-        if player.attacking:
-            player.attack()
+        player_1.update()
+        if player_1.attacking:
+            player_1.attack()
         if player_2.attacking:
             player_2.attack()
-        player.move()
+        player_1.move()
         player_2.move()
-        displaysurface.blit(player.image, player.rect)
+        displaysurface.blit(player_1.image, player_1.rect)
         displaysurface.blit(player_2.image, player_2.rect)
         player_2.move()
-        player.move()
-        player.update()
+        player_1.move()
+        player_1.update()
         player_2.update()
         
         
         # Render player numbers above each player
         player_text_surface = font.render("Player 1", True, (255, 255, 255))
-        player_text_rect = player_text_surface.get_rect(center=(player.rect.centerx, player.rect.top - 20))
+        player_text_rect = player_text_surface.get_rect(center=(player_1.rect.centerx, player_1.rect.top - 20))
         displaysurface.blit(player_text_surface, player_text_rect)
 
         player_2_text_surface = font.render("Player 2", True, (255, 255, 255))
@@ -193,5 +198,12 @@ def main():
         
         pygame.display.update()
 
+
+
+def main():
+    play_game()
+
 if __name__ == "__main__":
     main()
+    
+
