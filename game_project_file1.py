@@ -75,11 +75,17 @@ def main():
     font = pygame.font.SysFont('Arial', 24)
 
     players = (player, player_2)
+<<<<<<< HEAD
     def draw_health_bar(health, x, y):
         ratio = health / 100
         pygame.draw.rect(displaysurface, WHITE, (x - 3, y - 2, 404, 34))
         pygame.draw.rect(displaysurface, RED, (x, y, 400, 30))
         pygame.draw.rect(displaysurface, BLACK, (x, y, 400 * ratio, 30))
+=======
+
+    last = pygame.time.get_ticks()
+
+>>>>>>> 86f7154 (three attack combo added for samurai and fighter sprites and player class)
 
     # game loop
     while True:
@@ -118,11 +124,15 @@ def main():
                     player.fall(platform_group)
                 if event.key == pygame.K_RSHIFT:
                     if player.attacking == FALSE:
+                        if(pygame.time.get_ticks() - 750 > last):
+                            player.attack_sheet = 0
+                            player.attack_frame = 0
                         player.attack()
                         hits = pygame.sprite.spritecollide(player, player_2_group, False)
                         is_in_front = player.in_front_of(player_2)
                         if hits and is_in_front:
                             print("player hits")
+                        last = pygame.time.get_ticks()
                             
                 
                 if event.key == pygame.K_w:
