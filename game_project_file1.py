@@ -85,9 +85,9 @@ def main():
 
     font = pygame.font.SysFont('Arial', 24)
 
-<<<<<<< HEAD
+
     # Game loop
-=======
+
     players = (player, player_2)
 
    
