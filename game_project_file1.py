@@ -10,6 +10,7 @@ import background_class
 import platforms
 from bat_swarm import BatSwarm
 import player_class
+import player_class
 
 pygame.init()
 
@@ -47,7 +48,7 @@ def bring_window_to_front():
 
 
 
-def main():
+def play_game():
     vec = pygame.math.Vector2  # 2 for two dimensional
     FramePerSec = pygame.time.Clock()
 
@@ -69,7 +70,7 @@ def main():
     player_2.health = 100
 
     player_group = pygame.sprite.Group()
-    player_group.add(player)
+    player_group.add(player_1)
     player_2_group = pygame.sprite.Group()
     player_2_group.add(player_2)
 
@@ -86,9 +87,8 @@ def main():
     font = pygame.font.SysFont('Arial', 24)
 
 
-    # Game loop
 
-    players = (player, player_2)
+    players = (player_1, player_2)
 
 
     last = 0
@@ -128,20 +128,13 @@ def main():
     # game loop
     while True:
         FPS_CLOCK.tick(FPS)
-        player.idle()
+        player_1.idle()
         player_2.idle()
         for event in pygame.event.get():
             if event.type == QUIT:
                 pygame.quit()
                 sys.exit()
-
-            if event.type == VIDEORESIZE:
-                if not fullscreen:
-                    displaysurface = pygame.display.set_mode((event.w, event.h), pygame.RESIZABLE)
-
-            if event.type == pygame.MOUSEBUTTONDOWN:
-                pass
-
+    
             # Event handling for a range of different key presses
             if event.type == pygame.KEYDOWN:
 
@@ -156,23 +149,25 @@ def main():
                         displaysurface = pygame.display.set_mode((displaysurface.get_width(), displaysurface.get_width()), pygame.FULLSCREEN)
 
                 if event.key == pygame.K_UP:
-                    player.jump(ground_group, platform_group)
-                if event.key == pygame.K_DOWN:
-                    player.fall(platform_group)
-                if event.key == pygame.K_RSHIFT:
-                    if not player.attacking:
-                        if(pygame.time.get_ticks() - 750 > last):
-                            player.attack_sheet = 0
-                            player.attack_frame = 0
+                    player_1.jump(ground_group, platform_group)
 
-                        player.attack()
-                        hits = pygame.sprite.spritecollide(player, player_2_group, False)
-                        if hits:
+                if event.key == pygame.K_DOWN:
+                    player_1.fall(platform_group)
+
+                if event.key == pygame.K_RSHIFT:
+                    if not player_1.attacking:
+                        if(pygame.time.get_ticks() - 750 > last):
+                            player_1.attack_sheet = 0
+                            player_1.attack_frame = 0
+
+                        player_1.attack()
+                        hits = pygame.sprite.spritecollide(player_1, player_2_group, False)
+                        if hits and player_1.facing(player_2):
 
                             player_2.health -= 10  
                         last = pygame.time.get_ticks()
                             
-
+                #Player 2 controls
                 if event.key == pygame.K_w:
                     player_2.jump(ground_group, platform_group)
                 if event.key == pygame.K_s:
@@ -182,11 +177,11 @@ def main():
                     if not player_2.attacking:
                         player_2.attack()
                         hits = pygame.sprite.spritecollide(player_2, player_group, False)
-                        if hits:
-                            print("player 2 hits")
-                            player.health -= 10
+                        if hits and player_2.facing(player_1):
+                            player_1.health -= 10
+                            update_health
 
-        player.gravity_check(player, ground_group, platform_group)
+        player_1.gravity_check(player_1, ground_group, platform_group)
         player_2.gravity_check(player_2, ground_group, platform_group)
 
         # Render Functions ------
@@ -199,18 +194,18 @@ def main():
         draw_health_bar(displaysurface, player.health, 220, 40)
         draw_health_bar(displaysurface, player_2.health, 1480, 40)
         player_2.update()
-        player.update()
-        if player.attacking:
-            player.attack()
+        player_1.update()
+        if player_1.attacking:
+            player_1.attack()
         if player_2.attacking:
             player_2.attack()
-        player.move()
+        player_1.move()
         player_2.move()
-        displaysurface.blit(player.image, player.rect)
+        displaysurface.blit(player_1.image, player_1.rect)
         displaysurface.blit(player_2.image, player_2.rect)
         player_2.move()
-        player.move()
-        player.update()
+        player_1.move()
+        player_1.update()
         player_2.update()
         assign_player_tags(displaysurface, font, players)
 
@@ -230,5 +225,12 @@ def assign_player_tags(displaysurface, font, players):
         
     pygame.display.update()
 
+
+
+def main():
+    play_game()
+
 if __name__ == "__main__":
     main()
+    
+

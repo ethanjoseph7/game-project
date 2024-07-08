@@ -53,6 +53,7 @@ class Player(pygame.sprite.Sprite):
         self.image.set_colorkey(BG)
         self.displaysurface = screen
         self.vec = vec
+        self.number = 1
 
 
         self.jumping = False
@@ -62,7 +63,7 @@ class Player(pygame.sprite.Sprite):
  
         # Position and direction
         self.vx = 0
-        self.pos = vec((500, 240))
+        self.pos = vec((1400, 240))
         self.vel = vec(0,0)
         self.acc = vec(0,0)
         self.direction = "LEFT"
@@ -180,6 +181,7 @@ class Player(pygame.sprite.Sprite):
     def jump(self, ground_group, platform_group):
         self.rect.x +=1 
         self.falling = False
+        self.attacking = False
         #check to see if player contacts ground
         hits = pygame.sprite.spritecollide(self, ground_group, False)
         hits_platform = pygame.sprite.spritecollide(self, platform_group, False)
@@ -199,6 +201,7 @@ class Player(pygame.sprite.Sprite):
         if hits_platform and not self.falling:
             self.falling = True
             self.vel.y = 3
+            self.jumping = False
             
 
     def update(self):
@@ -257,7 +260,8 @@ class Player(pygame.sprite.Sprite):
 
 
         # update the current attack frame
-        self.attack_frame += 0.5
+        self.attack_frame += 0.4
+        
         
 
     def correction(self):
@@ -268,7 +272,7 @@ class Player(pygame.sprite.Sprite):
         if self.attack_frame == 4:
             self.pos.x += 20
     
-    def in_front_of(self,player2):
+    def facing(self,player2):
         if self.direction == "RIGHT" and player2.pos.x > self.pos.x:
             return True
         elif self.direction == "LEFT" and player2.pos.x < self.pos.x:
@@ -284,13 +288,14 @@ class Player_2(Player):
     def __init__(self, vec, screen, type):
         super().__init__(vec, screen, type)
         self.load_sprites(type)
-        self.pos = vec((200, 240))
+        self.pos = vec((300, 240))
         self.direction = "RIGHT"
         self.type = type
+        self.number = 2
         self.load_sprites(self.type)
 
     def move(self):
-        self.acc = self.vec(0,0.5)
+        self.acc = self.vec(0,0.3)
 
         if abs(self.vel.x) > 0.3:
             self.running = True
