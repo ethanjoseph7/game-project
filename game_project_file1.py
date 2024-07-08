@@ -90,6 +90,8 @@ def main():
 
     players = (player, player_2)
 
+
+    last = 0
    
 
     def draw_rounded_rect(surface, color, rect, corner_radius):
@@ -167,8 +169,7 @@ def main():
                         hits = pygame.sprite.spritecollide(player, player_2_group, False)
                         if hits:
 
-                            player_2.health =- 1 
-
+                            player_2.health -= 10  
                         last = pygame.time.get_ticks()
                             
 
@@ -178,12 +179,12 @@ def main():
                     player_2.fall(platform_group)
 
                 if event.key == pygame.K_LSHIFT:
-                    if player_2.attacking == FALSE:
+                    if not player_2.attacking:
                         player_2.attack()
-                        is_in_front = player_2.in_front_of(player)
                         hits = pygame.sprite.spritecollide(player_2, player_group, False)
-                        if hits and is_in_front:
+                        if hits:
                             print("player 2 hits")
+                            player.health -= 10
 
         player.gravity_check(player, ground_group, platform_group)
         player_2.gravity_check(player_2, ground_group, platform_group)

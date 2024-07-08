@@ -27,10 +27,24 @@ class Player(pygame.sprite.Sprite):
         self.attack_2_right_images = []
         self.attack_2_left_images = []
 
+        self.attack_3_right_images = []
+        self.attack_3_left_images = []
+
         self.jump_right_images = []
         self.jump_left_images = []
+
         self.load_sprites(type)
 
+        self.all_attack_images_right = []
+        self.all_attack_images_right.append(self.attack_1_right_images)
+        self.all_attack_images_right.append(self.attack_2_right_images)
+        self.all_attack_images_right.append(self.attack_3_right_images)
+
+
+        self.all_attack_images_left = []
+        self.all_attack_images_left.append(self.attack_1_left_images)
+        self.all_attack_images_left.append(self.attack_2_left_images)
+        self.all_attack_images_left.append(self.attack_3_left_images)
 
         BG = (0,0,0)
         self.image = pygame.Surface((63*SIZE_MULTIPLIER,81*SIZE_MULTIPLIER)).convert_alpha()
@@ -59,6 +73,7 @@ class Player(pygame.sprite.Sprite):
         self.attacking = False
         self.cooldown = False
         self.attack_frame = 0
+        self.attack_sheet = 0
 
         # Idle
         self.idle_frame = 0
@@ -90,8 +105,11 @@ class Player(pygame.sprite.Sprite):
         self.attack_2_right_images = sprites[6]
         self.attack_2_left_images = sprites[7]
 
-        self.jump_right_images = sprites[8]
-        self.jump_left_images = sprites[9]
+        self.attack_3_right_images = sprites[8]
+        self.attack_3_left_images = sprites[9]
+
+        self.jump_right_images = sprites[10]
+        self.jump_left_images = sprites[11]
 
 
 
@@ -197,7 +215,7 @@ class Player(pygame.sprite.Sprite):
                 self.image = self.jump_left_images[0] 
 
           # frame change when moving
-        if self.jumping == False and self.running == True:
+        if self.jumping == False and self.running == True and not self.attacking:
             if self.vel.x > 0:
                 self.image = self.running_right_images[int(self.move_frame)]
                 self.direction = "RIGHT"
@@ -217,17 +235,25 @@ class Player(pygame.sprite.Sprite):
     def attack(self):
         # if attack frame has reached end of sequence, return to base frame
         self.attacking = True
-        if self.attack_frame >= len(self.attack_1_right_images):
+        if self.attack_frame >= len(self.all_attack_images_right[self.attack_sheet]):
             self.attack_frame = 0
             self.attacking = False
+            self.attack_sheet += 1
+        if self.attack_sheet > 2:
+            self.attack_sheet = 0
+            self.attack_frame = 0
+        if self.jumping and self.attack_sheet != 2:
+            self.attack_sheet = 2
+            self.attack_frame = 0
 
-        
+        current_attack_list_right = self.all_attack_images_right[self.attack_sheet]
+        current_attack_list_left = self.all_attack_images_left[self.attack_sheet]
         # Check direction for correct animation to display
         if self.direction == "RIGHT":
-            self.image = self.attack_1_right_images[int(self.attack_frame)]
+            self.image = current_attack_list_right[int(self.attack_frame)]
         elif self.direction == "LEFT":
             #self.correction()
-            self.image = self.attack_1_left_images[int(self.attack_frame)]
+            self.image = current_attack_list_left[int(self.attack_frame)]
 
 
         # update the current attack frame
