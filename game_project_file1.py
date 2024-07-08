@@ -22,8 +22,14 @@ COUNT = 0
 BG = (0, 0, 0)
 SIZE_MULTIPLIER = 1.9 * 1.5
 RED = (255, 0, 0)
+<<<<<<< HEAD
 YELLOW = (255, 255, 0)
 WHITE = (255, 255, 255)
+=======
+#YELLOW = (255, 255, 0)
+WHITE = (255, 255, 255)
+BLACK = (0,0,0)
+>>>>>>> origin/main
 
 '''
 def bring_window_to_front():
@@ -31,6 +37,10 @@ def bring_window_to_front():
     if 'window' in wm_info:
         hwnd = wm_info['window']
         ctypes.windll.user32.SetForegroundWindow(hwnd)
+<<<<<<< HEAD
+=======
+        pass
+>>>>>>> origin/main
     else:
         print("Warning: 'window' key not found in wm_info. Unable to bring window to front.")
 '''
@@ -79,7 +89,24 @@ def main():
     
     font = pygame.font.SysFont('Arial', 24)
 
+<<<<<<< HEAD
     # Game loop
+=======
+    players = (player, player_2)
+<<<<<<< HEAD
+    def draw_health_bar(health, x, y):
+        ratio = health / 100
+        pygame.draw.rect(displaysurface, WHITE, (x - 3, y - 2, 404, 34))
+        pygame.draw.rect(displaysurface, RED, (x, y, 400, 30))
+        pygame.draw.rect(displaysurface, BLACK, (x, y, 400 * ratio, 30))
+=======
+
+    last = pygame.time.get_ticks()
+
+>>>>>>> 86f7154 (three attack combo added for samurai and fighter sprites and player class)
+
+    # game loop
+>>>>>>> origin/main
     while True:
         FPS_CLOCK.tick(FPS)
         player.idle()
@@ -111,12 +138,25 @@ def main():
                 if event.key == pygame.K_DOWN:
                     player.fall(platform_group)
                 if event.key == pygame.K_RSHIFT:
+<<<<<<< HEAD
                     if not player.attacking:
+=======
+                    if player.attacking == FALSE:
+                        if(pygame.time.get_ticks() - 750 > last):
+                            player.attack_sheet = 0
+                            player.attack_frame = 0
+>>>>>>> origin/main
                         player.attack()
                         hits = pygame.sprite.spritecollide(player, player_2_group, False)
                         if hits:
                             print("player hits")
+<<<<<<< HEAD
                             player_2.health =- 1 
+=======
+                        last = pygame.time.get_ticks()
+                            
+                
+>>>>>>> origin/main
                 if event.key == pygame.K_w:
                     player_2.jump(ground_group, platform_group)
                 if event.key == pygame.K_s:
@@ -137,6 +177,8 @@ def main():
         background.render()
         ground.render()
         platform_group.draw(displaysurface)
+        draw_health_bar(player.health, 20, 30)
+        draw_health_bar(player_2.health, 1280, 30)
         player_2.update()
         player.update()
         if player.attacking:
