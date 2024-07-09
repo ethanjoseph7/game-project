@@ -166,7 +166,7 @@ def play_game():
     ground_group = pygame.sprite.Group()
     ground_group.add(ground)
     bat_swarm = BatSwarm(displaysurface)
-    player1_type = "fighter"
+    player1_type = "shinobi"
     player2_type = "samurai"
     player_1 = player_class.Player(vec, displaysurface, player1_type)
     player_1.health = 100
@@ -281,16 +281,20 @@ def play_game():
 
                 if event.key == pygame.K_RSHIFT:
                     if not player_1.attacking:
-                        if(pygame.time.get_ticks() - 750 > last):
+                        if(pygame.time.get_ticks() - 550 > player_1_last):
                             player_1.attack_sheet = 0
                             player_1.attack_frame = 0
 
                         player_1.attack()
                         hits = pygame.sprite.spritecollide(player_1, player_2_group, False)
                         if hits and player_1.facing(player_2):
-                            player_2.health -= 10
-                        last = pygame.time.get_ticks()
 
+                            player_2.health -= player_1.damage
+                            update_health()
+
+                        player_1_last = pygame.time.get_ticks()
+                            
+                #Player 2 controls
                 if event.key == pygame.K_w:
                     player_2.jump(ground_group, platform_group)
                 if event.key == pygame.K_s:
@@ -298,10 +302,15 @@ def play_game():
 
                 if event.key == pygame.K_LSHIFT:
                     if not player_2.attacking:
+                        if(pygame.time.get_ticks() - 550 > player_2_last):
+                            player_2.attack_sheet = 0
+                            player_2.attack_frame = 0
                         player_2.attack()
                         hits = pygame.sprite.spritecollide(player_2, player_group, False)
                         if hits and player_2.facing(player_1):
-                            player_1.health -= 10
+                            player_1.health -= player_2.damage
+                            update_health
+                        player_2_last = pygame.time.get_ticks()
 
         player_1.gravity_check(player_1, ground_group, platform_group)
         player_2.gravity_check(player_2, ground_group, platform_group)
