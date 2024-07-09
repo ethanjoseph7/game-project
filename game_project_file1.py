@@ -82,7 +82,7 @@ def play_game():
     # Function for creating health bar
     def draw_health_bar(player, x, y):
         ratio = player.health / 100
-        if(ratio  == 0):
+        if(ratio  <= 0):
             if player.number == 1:
                 print("player 2 wins")
             else:
@@ -142,7 +142,7 @@ def play_game():
                         hits = pygame.sprite.spritecollide(player_1, player_2_group, False)
                         if hits and player_1.facing(player_2):
 
-                            player_2.health = player_2.health - 10
+                            player_2.health -= player_1.damage
                             update_health()
 
                         last = pygame.time.get_ticks()
@@ -158,7 +158,7 @@ def play_game():
                         player_2.attack()
                         hits = pygame.sprite.spritecollide(player_2, player_group, False)
                         if hits and player_2.facing(player_1):
-                            player_1.health -= 10
+                            player_1.health -= player_2.damage
                             update_health
 
         player_1.gravity_check(player_1, ground_group, platform_group)

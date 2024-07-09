@@ -1,6 +1,6 @@
 import pygame
 from pygame.locals import *
-import spritesheet
+import sprites_class
 
 
 ACC = 0.5
@@ -75,6 +75,7 @@ class Player(pygame.sprite.Sprite):
         self.cooldown = False
         self.attack_frame = 0
         self.attack_sheet = 0
+        self.damage = 0
 
         # Idle
         self.idle_frame = 0
@@ -91,7 +92,7 @@ class Player(pygame.sprite.Sprite):
 
 
     def load_sprites(self, type):
-        sprites = spritesheet.load_sprites(type)
+        sprites = sprites_class.load_sprites(type)
 
         self.idle_right_images = sprites[0]
         self.idle_left_images = sprites[1]
@@ -248,6 +249,11 @@ class Player(pygame.sprite.Sprite):
         if self.jumping and self.attack_sheet != 2:
             self.attack_sheet = 2
             self.attack_frame = 0
+        
+        if self.attack_sheet < 2:
+            self.damage = 10
+        else:
+            self.damage = 15
 
         current_attack_list_right = self.all_attack_images_right[self.attack_sheet]
         current_attack_list_left = self.all_attack_images_left[self.attack_sheet]
