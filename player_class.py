@@ -246,6 +246,8 @@ class Player(pygame.sprite.Sprite):
     def attack(self):
         # if attack frame has reached end of sequence, return to base frame
         self.attacking = True
+        if self.vel.y == 0: 
+            self.vel.x /= 1.5
         if self.attack_frame >= len(self.all_attack_images_right[self.attack_sheet]):
             self.attack_frame = 0
             self.attacking = False
@@ -273,8 +275,9 @@ class Player(pygame.sprite.Sprite):
 
 
         # update the current attack frame
-        self.attack_frame += 0.2
-        self.vel.x = 0
+        self.attack_frame += 0.15
+       
+        
         
         
 
