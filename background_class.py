@@ -1,6 +1,5 @@
 import pygame
 from pygame.locals import *
-from os.path import join
 
 class Background(pygame.sprite.Sprite):
       def __init__(self, displaysurface):
