@@ -15,41 +15,29 @@ class Player(pygame.sprite.Sprite):
         super().__init__()
         # Sprite
         self.type = type
-        self.idle_right_images = []
-        self.idle_left_images = []
+        self.idle_images = []
 
-        self.running_right_images = []
-        self.running_left_images = []
+        self.running_images = []
 
-        self.attack_1_right_images = []
-        self.attack_1_left_images = []
+        self.attack_1_images = []
 
-        self.attack_2_right_images = []
-        self.attack_2_left_images = []
+        self.attack_2_images = []
 
-        self.attack_3_right_images = []
-        self.attack_3_left_images = []
+        self.attack_3_images = []
 
-        self.jump_right_images = []
-        self.jump_left_images = []
+        self.jump_images = []
 
         self.load_sprites(type)
 
-        self.all_attack_images_right = []
-        self.all_attack_images_right.append(self.attack_1_right_images)
-        self.all_attack_images_right.append(self.attack_2_right_images)
-        self.all_attack_images_right.append(self.attack_3_right_images)
+        self.all_attack_images = []
+        self.all_attack_images.append(self.attack_1_images)
+        self.all_attack_images.append(self.attack_2_images)
+        self.all_attack_images.append(self.attack_3_images)
 
-
-        self.all_attack_images_left = []
-        self.all_attack_images_left.append(self.attack_1_left_images)
-        self.all_attack_images_left.append(self.attack_2_left_images)
-        self.all_attack_images_left.append(self.attack_3_left_images)
-
-        BG = (0,0,0)
+        BG = (0,0,0,0)
         self.image = pygame.Surface((64*SIZE_MULTIPLIER,84*SIZE_MULTIPLIER)).convert_alpha()
         self.rect = self.image.get_rect()
-        self.image.blit(self.idle_right_images[0], self.rect)
+        self.image.blit(self.idle_images[0], self.rect)
         self.image.set_colorkey(BG)
         self.displaysurface = screen
         self.vec = vec
@@ -93,37 +81,30 @@ class Player(pygame.sprite.Sprite):
 
 
     def load_sprites(self, type):
-        sprites = sprites_class.load_sprites(type)
+        curr_sprites = sprites_class.sprite_class(type)
+        sprites = curr_sprites.load_sprites()
 
-        self.idle_right_images = sprites[0]
-        self.idle_left_images = sprites[1]
+        self.idle_images = sprites[0]
         
+        self.running_images = sprites[1]
 
-        self.running_right_images = sprites[2]
-        self.running_left_images = sprites[3]
-
-        self.attack_1_right_images = sprites[4]
-        self.attack_1_left_images = sprites[5]
+        self.attack_1_images = sprites[2]
         
-        self.attack_2_right_images = sprites[6]
-        self.attack_2_left_images = sprites[7]
+        self.attack_2_images = sprites[3]
 
-        self.attack_3_right_images = sprites[8]
-        self.attack_3_left_images = sprites[9]
+        self.attack_3_images = sprites[4]
 
-        self.jump_right_images = sprites[10]
-        self.jump_left_images = sprites[11]
-
-
+        self.jump_images = sprites[5]
 
     def idle(self): 
         if not self.running:
-            if self.idle_frame >= len(self.idle_right_images):
+            if self.idle_frame >= len(self.idle_images):
                 self.idle_frame = 0
             if self.direction == "RIGHT":
-                    self.image = self.idle_right_images[int(self.idle_frame)]
+                    self.image = self.idle_images[int(self.idle_frame)]
             else:
-                    self.image = self.idle_left_images[int(self.idle_frame)] 
+                    temp = self.idle_images[int(self.idle_frame)]
+                    self.image = self.image = pygame.transform.flip(temp, True, False)
             self.idle_frame += 0.1
 
     def move(self):
@@ -211,25 +192,27 @@ class Player(pygame.sprite.Sprite):
             self.move_frame = 0
             return
         
-        if self.jump_frame > len(self.jump_right_images):
+        if self.jump_frame > len(self.jump_images):
             self.jump_frame = 0
             return
         
         # change image when jumping or falling
         if self.jumping or self.falling:
             if self.direction == "RIGHT":
-                self.image = self.jump_right_images[int(self.jump_frame)]
+                self.image = self.jump_images[int(self.jump_frame)]
             else:
-                self.image = self.jump_left_images[int(self.jump_frame)]
+                temp = self.jump_images[int(self.jump_frame)]
+                self.image = pygame.transform.flip(temp, True, False)
             self.jump_frame += 0.07 
 
           # frame change when moving
         if self.jumping == False and self.running == True and not self.attacking:
             if self.vel.x > 0:
-                self.image = self.running_right_images[int(self.move_frame)]
+                self.image = self.running_images[int(self.move_frame)]
                 self.direction = "RIGHT"
             else:
-                self.image = self.running_left_images[int(self.move_frame)] 
+                temp = self.running_images[int(self.move_frame)]
+                self.image = pygame.transform.flip(temp, True, False)
                 self.direction = "LEFT"
             self.move_frame += 0.1
 
@@ -238,7 +221,7 @@ class Player(pygame.sprite.Sprite):
         if abs(self.vel.x) < 0.2 and self.move_frame != 0:
             self.move_frame = 0
             if self.direction == "RIGHT":
-                self.image = self.running_right_images[int(self.move_frame)]
+                self.image = self.running_images[int(self.move_frame)]
             else:
                 self.image = self.running_left_images[int(self.move_frame)] 
         '''
@@ -248,7 +231,7 @@ class Player(pygame.sprite.Sprite):
         self.attacking = True
         if self.vel.y == 0: 
             self.vel.x /= 1.5
-        if self.attack_frame >= len(self.all_attack_images_right[self.attack_sheet]):
+        if self.attack_frame >= len(self.all_attack_images[self.attack_sheet]):
             self.attack_frame = 0
             self.attacking = False
             self.attack_sheet += 1
@@ -264,14 +247,14 @@ class Player(pygame.sprite.Sprite):
         else:
             self.damage = 15
 
-        current_attack_list_right = self.all_attack_images_right[self.attack_sheet]
-        current_attack_list_left = self.all_attack_images_left[self.attack_sheet]
+        current_attack_list = self.all_attack_images[self.attack_sheet]
         # Check direction for correct animation to display
         if self.direction == "RIGHT":
-            self.image = current_attack_list_right[int(self.attack_frame)]
+            self.image = current_attack_list[int(self.attack_frame)]
         elif self.direction == "LEFT":
             #self.correction()
-            self.image = current_attack_list_left[int(self.attack_frame)]
+            temp = current_attack_list[int(self.attack_frame)]
+            self.image = pygame.transform.flip(temp, True, False)
 
 
         # update the current attack frame
