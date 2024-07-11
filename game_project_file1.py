@@ -51,8 +51,8 @@ def play_two_player():
     ground = ground_class.Ground(displaysurface)
     ground_group = pygame.sprite.Group()
     ground_group.add(ground)
-    player1_type = "Skeleton"  # input("player one, fighter or samurai? ")
-    player2_type = "Shinobi"  # input("player two, fighter or samurai? ")
+    player1_type = "Plent"  # input("player one, fighter or samurai? ")
+    player2_type = "Fire_Spirit"  # input("player two, fighter or samurai? ")
     player_1 = player_class.Player(vec, displaysurface, player1_type)
     player_2 = player_class.Player_2(vec, displaysurface, player2_type)
 
