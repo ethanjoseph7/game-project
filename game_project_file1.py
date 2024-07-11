@@ -42,6 +42,10 @@ corner_radius = 15
 heart_size = (30, 30)
 heart_sprite_sheet = pygame.image.load('heart_lives.png')
 
+#player character types
+player1_type = ""
+player2_type = ""
+
 def extract_heart_images(sprite_sheet, heart_size):
     heart_images = []
     for i in range(3):
@@ -153,6 +157,24 @@ def menu_screen():
 
         pygame.display.update()
 
+
+
+
+
+def background_select():
+    vec = pygame.math.Vector2
+    FramePerSec = pygame.time.Clock()
+    displaysurface = pygame.display.set_mode((WIDTH, HEIGHT))
+    
+    gif_frames = load_gif_frames('menu.gif')
+    gif_frame_count = len(gif_frames)
+    gif_frame_index = 0
+    
+    
+    
+    
+    
+    
 def play_game():
     vec = pygame.math.Vector2  # 2 for two dimensional
     FramePerSec = pygame.time.Clock()
@@ -166,8 +188,7 @@ def play_game():
     ground_group = pygame.sprite.Group()
     ground_group.add(ground)
     bat_swarm = BatSwarm(displaysurface)
-    player1_type = "fighter"
-    player2_type = "samurai"
+
     player_1 = player_class.Player(vec, displaysurface, player1_type)
     player_1.health = 100
     player_1.lives = 3  # Initial lives

@@ -3,7 +3,7 @@ from pygame.locals import *
 import spritesheet
 
 SIZE_MULTIPLIER = 1.9
-BG = (0,0,0)
+BG = (0,0,0,0)
 X_DIM = 96
 Y_DIM = 84
 
