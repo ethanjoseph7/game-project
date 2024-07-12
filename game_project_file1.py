@@ -55,6 +55,71 @@ def load_gif_frames(filename):
         frames.append(frame_surface)
     return frames
 
+# method for menu screen at the start of the game
+def menu_screen():
+    vec = pygame.math.Vector2
+    FramePerSec = pygame.time.Clock()
+    displaysurface = pygame.display.set_mode((WIDTH, HEIGHT))
+    pygame.display.set_caption("Game Menu")
+
+    # Load GIF frames
+    gif_frames = load_gif_frames('menu.gif')
+    gif_frame_count = len(gif_frames)
+    gif_frame_index = 0
+
+    font = pygame.font.SysFont('Arial', 50)
+    
+    
+    #method to write the text on buttons and other surfaces on the screen
+    def draw_text(text, font, color, surface, x, y):
+        textobj = font.render(text, True, color)
+        textrect = textobj.get_rect()
+        textrect.topleft = (x, y)
+        surface.blit(textobj, textrect)
+
+    #Method to create buttons with text
+    def button(text, font, color, rect, action=None):
+        mouse = pygame.mouse.get_pos()
+        click = pygame.mouse.get_pressed()
+
+        if rect.collidepoint(mouse):
+            if click[0] == 1 and action is not None:
+                action()
+
+        pygame.draw.rect(displaysurface, color, rect, border_radius=15)
+        pygame.draw.rect(displaysurface, RED , rect, 2, border_radius=15)
+        text_surface = font.render(text, True, (255, 255, 255))
+        text_rect = text_surface.get_rect(center=rect.center)
+        displaysurface.blit(text_surface, text_rect)
+
+    def start_game():
+        play_one_player()
+
+    def quit_game():
+        pygame.quit()
+        sys.exit()
+
+    while True:
+        FramePerSec.tick(FPS)
+
+        # Display GIF frame
+        displaysurface.blit(gif_frames[gif_frame_index], (0, 0))
+        gif_frame_index = (gif_frame_index + 1) % gif_frame_count
+
+        for event in pygame.event.get():
+            if event.type == QUIT:
+                pygame.quit()
+                sys.exit()
+
+        draw_text('Game Menu', font, (255, 255, 255), displaysurface, WIDTH // 2 - 100, HEIGHT // 4)
+
+        start_button_rect = pygame.Rect(WIDTH // 2 - 100, HEIGHT // 2 - 50, 200, 50)
+        exit_button_rect = pygame.Rect(WIDTH // 2 - 100, HEIGHT // 2 + 50, 200, 50)
+
+        button('Start', font, RED, start_button_rect, start_game)
+        button('Exit', font, RED , exit_button_rect, quit_game)
+
+        pygame.display.update()
 
 
 
@@ -414,7 +479,7 @@ def play_one_player():
 
 
 def main():
-    play_two_player()
+    menu_screen()
 
 if __name__ == "__main__":
     main()
