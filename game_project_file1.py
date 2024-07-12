@@ -10,6 +10,8 @@ import background_class
 import platforms
 from ctypes import *
 import player_class
+import imageio
+from PIL import Image as PilImage
 
 pygame.init()
 
@@ -27,6 +29,7 @@ WHITE = (255, 255, 255)
 BLACK = (0,0,0)
 
 
+# method to load the game to the front of the window on start 
 def bring_window_to_front():
     wm_info = pygame.display.get_wm_info()
     if 'window' in wm_info:
@@ -34,9 +37,28 @@ def bring_window_to_front():
         ctypes.windll.user32.SetForegroundWindow(hwnd)
     else:
         print("Warning: 'window' key not found in wm_info. Unable to bring window to front.")
+        
+
+# This method loads a GIF file, converts each frame to a pygame Surface, scales each frame to the screen size, 
+# and returns a list of pygame Surfaces representing each frame of the GIF.
+def load_gif_frames(filename):
+    gif = imageio.mimread(filename)
+    frames = []
+    for frame in gif:
+        pil_image = PilImage.fromarray(frame)
+        pil_image = pil_image.convert("RGBA")
+        mode = pil_image.mode
+        size = pil_image.size
+        data = pil_image.tobytes()
+        frame_surface = pygame.image.fromstring(data, size, mode)
+        frame_surface = pygame.transform.scale(frame_surface, (WIDTH, HEIGHT))
+        frames.append(frame_surface)
+    return frames
 
 
 
+
+# Method to call when player chooses to play a 2 player game against friend
 def play_two_player():
     vec = pygame.math.Vector2  # 2 for two dimensional
     FramePerSec = pygame.time.Clock()
@@ -212,6 +234,8 @@ def play_two_player():
         
         pygame.display.update()
 
+
+# Method to call when player chooses to play a single player game against a Bot
 def play_one_player():
     vec = pygame.math.Vector2  # 2 for two dimensional
     FramePerSec = pygame.time.Clock()
