@@ -4,7 +4,7 @@ import spritesheet
 from PIL import Image
 
 SIZE_MULTIPLIER = 1.9
-BG = (0,0,0,0)
+BG = (255,255,255)
 X_DIM = 96
 Y_DIM = 84
 FRAME_WIDTH = 128

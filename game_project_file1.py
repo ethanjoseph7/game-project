@@ -26,7 +26,7 @@ YELLOW = (255, 255, 0)
 WHITE = (255, 255, 255)
 BLACK = (0,0,0)
 
-'''
+
 def bring_window_to_front():
     wm_info = pygame.display.get_wm_info()
     if 'window' in wm_info:
@@ -34,7 +34,7 @@ def bring_window_to_front():
         ctypes.windll.user32.SetForegroundWindow(hwnd)
     else:
         print("Warning: 'window' key not found in wm_info. Unable to bring window to front.")
-'''
+
 
 
 def play_two_player():
@@ -43,7 +43,7 @@ def play_two_player():
 
     displaysurface = pygame.display.set_mode((WIDTH, HEIGHT))
     pygame.display.set_caption("Game")
-    #bring_window_to_front()
+    bring_window_to_front()
 
     # Delayed imports and initializations
     
