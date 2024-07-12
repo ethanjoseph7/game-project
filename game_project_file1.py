@@ -32,6 +32,9 @@ BLACK = (0,0,0)
 player1_type = "fighter"  # input("player one, fighter or samurai? ")
 player2_type = "fighter"  # input("player two, fighter or samurai? ")
 
+single_play = False
+double_play = False
+
 
 # method to load the game to the front of the window on start 
 def bring_window_to_front():
@@ -59,7 +62,7 @@ def load_gif_frames(filename):
         frames.append(frame_surface)
     return frames
 
-# method for menu screen at the start of the game
+# Method for the menu screen at the start of the game
 def menu_screen():
     vec = pygame.math.Vector2
     FramePerSec = pygame.time.Clock()
@@ -71,18 +74,14 @@ def menu_screen():
     gif_frame_count = len(gif_frames)
     gif_frame_index = 0
 
-    font = pygame.font.SysFont('Arial', 50)
-    
-    
-    #method to write the text on buttons and other surfaces on the screen
-    def draw_text(text, font, color, surface, x, y):
-        textobj = font.render(text, True, color)
-        textrect = textobj.get_rect()
-        textrect.topleft = (x, y)
-        surface.blit(textobj, textrect)
+    # Load button images
+    start_button_img = pygame.transform.scale(pygame.image.load('play_button.png'), (295, 150))
+    exit_button_img = pygame.transform.scale(pygame.image.load('exit_button.png'), (275, 150))
+    setting_button_img = pygame.transform.scale(pygame.image.load('setting_button.png'), (150, 150))
 
-    #Method to create buttons with text
-    def button(text, font, color, rect, action=None):
+    # Method to create buttons with images
+    def image_button(image, pos, action=None):
+        rect = image.get_rect(topleft=pos)
         mouse = pygame.mouse.get_pos()
         click = pygame.mouse.get_pressed()
 
@@ -90,19 +89,17 @@ def menu_screen():
             if click[0] == 1 and action is not None:
                 action()
 
-        pygame.draw.rect(displaysurface, color, rect, border_radius=15)
-        pygame.draw.rect(displaysurface, RED , rect, 2, border_radius=15)
-        text_surface = font.render(text, True, (255, 255, 255))
-        text_rect = text_surface.get_rect(center=rect.center)
-        displaysurface.blit(text_surface, text_rect)
+        displaysurface.blit(image, rect)
 
     def start_game():
-        #play_one_player()
-        select_char()
+        # Replace this with your actual game starting function
+        select_play_type()
 
     def quit_game():
         pygame.quit()
         sys.exit()
+    def setting_menu():
+        pass
 
     while True:
         FramePerSec.tick(FPS)
@@ -116,20 +113,78 @@ def menu_screen():
                 pygame.quit()
                 sys.exit()
 
-        draw_text('Game Menu', font, (255, 255, 255), displaysurface, WIDTH // 2 - 100, HEIGHT // 4)
-
-        start_button_rect = pygame.Rect(WIDTH // 2 - 100, HEIGHT // 2 - 50, 200, 50)
-        exit_button_rect = pygame.Rect(WIDTH // 2 - 100, HEIGHT // 2 + 50, 200, 50)
-
-        button('Start', font, RED, start_button_rect, start_game)
-        button('Exit', font, RED , exit_button_rect, quit_game)
+        # Display buttons
+        image_button(start_button_img, (WIDTH // 2 - start_button_img.get_width() // 2, HEIGHT // 2 - 50), start_game)
+        image_button(exit_button_img, (WIDTH // 2 - exit_button_img.get_width() // 2, HEIGHT // 2 + 50), quit_game)
+        image_button(setting_button_img, (25, 25), setting_menu)
 
         pygame.display.update()
+        
+def select_play_type():
+    global single_play, double_play
+    vec = pygame.math.Vector2
+    FramePerSec = pygame.time.Clock()
+    displaysurface = pygame.display.set_mode((WIDTH, HEIGHT))
+    pygame.display.set_caption("Game Menu")
+
+    # Load GIF frames
+    gif_frames = load_gif_frames('menu.gif')
+    gif_frame_count = len(gif_frames)
+    gif_frame_index = 0
+
+    # Load button images
+    single_player_button_img = pygame.transform.scale(pygame.image.load('single_play.png'), (400, 275))
+    double_player_button_img = pygame.transform.scale(pygame.image.load('double_play.png'), (400, 275))
+    back_button_img = pygame.transform.scale(pygame.image.load('back_button.png'), (150, 150))
+
+    # Method to create buttons with images
+    def image_button(image, pos, action=None):
+        rect = image.get_rect(topleft=pos)
+        mouse = pygame.mouse.get_pos()
+        click = pygame.mouse.get_pressed()
+
+        if rect.collidepoint(mouse):
+            if click[0] == 1 and action is not None:
+                action()
+
+        displaysurface.blit(image, rect)
+
+    def single_play():
+        global single_play
+        single_play = True
+        select_char()
+        
+    def double_play():
+        global double_play
+        double_play = True
+        select_char()
+    
+    def go_back():
+        menu_screen()
+        
 
 
+    while True:
+        FramePerSec.tick(FPS)
 
+        # Display GIF frame
+        displaysurface.blit(gif_frames[gif_frame_index], (0, 0))
+        gif_frame_index = (gif_frame_index + 1) % gif_frame_count
 
-def select_char():
+        for event in pygame.event.get():
+            if event.type == QUIT:
+                pygame.quit()
+                sys.exit()
+
+        # Display buttons
+        image_button(single_player_button_img, (WIDTH // 3 - single_player_button_img.get_width(), HEIGHT // 2.5), single_play)
+        image_button(double_player_button_img, (WIDTH // 2 + double_player_button_img.get_width() - double_player_button_img.get_width() //3, HEIGHT // 2.5 ), double_play)
+        image_button(back_button_img, (25, 25), go_back)
+
+        pygame.display.update()
+        
+
+def select_back():
     # This method allows the players to select their characters for the game by dragging circles onto character buttons.
     # The selected characters are then used in the two-player game.
     
@@ -139,6 +194,8 @@ def select_char():
     displaysurface = pygame.display.set_mode((WIDTH, HEIGHT))
     screen = displaysurface
     pygame.display.set_caption("Character Selection")
+    
+    
 
     # Load the button images and names
     characters = [
@@ -147,6 +204,7 @@ def select_char():
         {"name": "shinobi", "image": pygame.transform.scale(pygame.image.load('shinobi.png'), (260, 260))},
         {"name": "skeleton", "image": pygame.transform.scale(pygame.image.load('skeleton.png'), (260, 260))}
     ]
+    
 
     # Define button positions
     button_rects = [
@@ -227,14 +285,14 @@ def select_char():
                         if rect.collidepoint(event.pos):
                             selected_player_1 = i
                             player_1_name = characters[i]["name"]
-                            p1_circle.center = (rect.centerx - 60, rect.centery)  # Slightly left of the button
+                            p1_circle.center = (rect.centerx - 60, rect.centery)  
                 elif p2_dragging:
                     p2_dragging = False
                     for i, rect in enumerate(button_rects):
                         if rect.collidepoint(event.pos):
                             selected_player_2 = i
                             player_2_name = characters[i]["name"]
-                            p2_circle.center = (rect.centerx + 60, rect.centery)  # Slightly right of the button
+                            p2_circle.center = (rect.centerx + 60, rect.centery)  
             if event.type == pygame.MOUSEMOTION:
                 if p1_dragging:
                     mouse_x, mouse_y = event.pos
@@ -262,6 +320,169 @@ def select_char():
         pygame.draw.rect(screen, (255, 0, 0), start_button_rect)  # Red start button
         start_text = font.render("Start", True, (255, 255, 255))
         screen.blit(start_text, (start_button_rect.centerx - start_text.get_width() // 2, start_button_rect.centery - start_text.get_height() // 2))
+
+        # Display selected character names
+        if player_1_name:
+            p1_char_text = font.render(f"P1: {player_1_name}", True, (0, 255, 0))
+            screen.blit(p1_char_text, (50, 10))
+        if player_2_name:
+            p2_char_text = font.render(f"P2: {player_2_name}", True, (0, 255, 0))
+            screen.blit(p2_char_text, (WIDTH - p2_char_text.get_width() - 50, 10))
+
+        # Update the display
+        pygame.display.flip()
+
+
+
+def select_char():
+    # This method allows the players to select their characters for the game by dragging circles onto character buttons.
+    # The selected characters are then used in the two-player game.
+    
+    global player1_type, player2_type
+    
+    vec = pygame.math.Vector2
+    displaysurface = pygame.display.set_mode((WIDTH, HEIGHT))
+    screen = displaysurface
+    pygame.display.set_caption("Character Selection")
+
+    # Load the button images and names
+    characters = [
+        {"name": "fighter", "image": pygame.transform.scale(pygame.image.load('fighter.png'), (260, 260))},
+        {"name": "samurai", "image": pygame.transform.scale(pygame.image.load('samurai.png'), (260, 260))},
+        {"name": "shinobi", "image": pygame.transform.scale(pygame.image.load('shinobi.png'), (260, 260))},
+        {"name": "skeleton", "image": pygame.transform.scale(pygame.image.load('skeleton.png'), (260, 260))}
+    ]
+
+    # Define button positions
+    button_rects = [
+        characters[0]["image"].get_rect(topleft=(200, 150)),
+        characters[1]["image"].get_rect(topleft=(550, 150)),
+        characters[2]["image"].get_rect(topleft=(900, 150)),
+        characters[3]["image"].get_rect(topleft=(1250, 150))
+    ]
+
+    # Set up the font for the subheading
+    font = pygame.font.SysFont('Arial', 24)
+    subheading_texts = [char["name"] for char in characters]
+    subheading_surfaces = [font.render(text, True, (255, 255, 255)) for text in subheading_texts]
+
+    # Player selection variables
+    selected_player_1 = None
+    selected_player_2 = None
+    player_1_name = None
+    player_2_name = None
+
+    # Draggable circles
+    p1_circle = pygame.Rect(50, 50, 80, 80)
+    p2_circle = pygame.Rect(150, 50, 80, 80)
+    p1_dragging = False
+    p2_dragging = False
+
+    # images button
+    start_button_img = pygame.transform.scale(pygame.image.load('play_button.png'), (295, 150))
+    back_button_img = pygame.transform.scale(pygame.image.load('back_button.png'), (150, 150))
+    
+    def image_button(image, pos, action=None):
+        rect = image.get_rect(topleft=pos)
+        mouse = pygame.mouse.get_pos()
+        click = pygame.mouse.get_pressed()
+
+        if rect.collidepoint(mouse):
+            if click[0] == 1 and action is not None:
+                action()
+
+        displaysurface.blit(image, rect)
+
+    # Function to draw the buttons and player indicators
+    def draw_buttons():
+        for i, rect in enumerate(button_rects):
+            screen.blit(characters[i]["image"], rect)
+            subheading_rect = subheading_surfaces[i].get_rect(center=(rect.centerx, rect.bottom + 30))
+            screen.blit(subheading_surfaces[i], subheading_rect)
+        
+        # Draw draggable circles
+        pygame.draw.ellipse(screen, (0, 0, 255), p1_circle)  # Blue circle for P1
+        p1_text = font.render("P1", True, (255, 255, 255))
+        screen.blit(p1_text, (p1_circle.centerx - p1_text.get_width() // 2, p1_circle.centery - p1_text.get_height() // 2))
+        
+        pygame.draw.ellipse(screen, (255, 0, 0), p2_circle)  # Red circle for P2
+        p2_text = font.render("P2", True, (255, 255, 255))
+        screen.blit(p2_text, (p2_circle.centerx - p2_text.get_width() // 2, p2_circle.centery - p2_text.get_height() // 2))
+
+    def start_game():
+        if player_1_name:
+            global player1_type
+            player1_type = player_1_name
+        if player_2_name:
+            global player2_type
+            player2_type = player_2_name
+        play_two_player()
+        
+
+    
+    def go_back():
+        menu_screen()
+
+    # Main game loop
+    running = True
+    while running:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if p1_circle.collidepoint(event.pos):
+                    p1_dragging = True
+                    mouse_x, mouse_y = event.pos
+                    offset_x = p1_circle.x - mouse_x
+                    offset_y = p1_circle.y - mouse_y
+                elif p2_circle.collidepoint(event.pos):
+                    p2_dragging = True
+                    mouse_x, mouse_y = event.pos
+                    offset_x = p2_circle.x - mouse_x
+                    offset_y = p2_circle.y - mouse_y
+                elif start_button_img.get_rect(topleft=(WIDTH // 2 - start_button_img.get_width() // 2, HEIGHT - 100)).collidepoint(event.pos):
+                    start_game()
+            if event.type == pygame.MOUSEBUTTONUP:
+                if p1_dragging:
+                    p1_dragging = False
+                    for i, rect in enumerate(button_rects):
+                        if rect.collidepoint(event.pos):
+                            selected_player_1 = i
+                            player_1_name = characters[i]["name"]
+                            p1_circle.center = (rect.centerx - 60, rect.centery)  
+                elif p2_dragging:
+                    p2_dragging = False
+                    for i, rect in enumerate(button_rects):
+                        if rect.collidepoint(event.pos):
+                            selected_player_2 = i
+                            player_2_name = characters[i]["name"]
+                            p2_circle.center = (rect.centerx + 60, rect.centery)  
+            if event.type == pygame.MOUSEMOTION:
+                if p1_dragging:
+                    mouse_x, mouse_y = event.pos
+                    p1_circle.x = mouse_x + offset_x
+                    p1_circle.y = mouse_y + offset_y
+                elif p2_dragging:
+                    mouse_x, mouse_y = event.pos
+                    p2_circle.x = mouse_x + offset_x
+                    p2_circle.y = mouse_y + offset_y
+
+        # Clear the screen
+        screen.fill((0, 0, 0))  # Black background
+
+        # Draw the buttons and player indicators
+        draw_buttons()
+
+        # Ensure circles don't overlap
+        if p1_circle.colliderect(p2_circle):
+            if p1_circle.centerx < p2_circle.centerx:
+                p1_circle.right = p2_circle.left - 10
+            else:
+                p2_circle.right = p1_circle.left - 10
+
+        # Draw the start button
+        image_button(start_button_img, (WIDTH // 2 - start_button_img.get_width() // 2, HEIGHT - start_button_img.get_height() - 50), start_game)
+        image_button(back_button_img, (25, 800), go_back)
 
         # Display selected character names
         if player_1_name:
