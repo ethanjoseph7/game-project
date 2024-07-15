@@ -16,7 +16,7 @@ class sprite_class():
 
     def get_idle_images(self):
         fighter_idle_images = []
-        ss_url = "character_sprites/" + str(self.sprite_type) + "/Idle.png"
+        ss_url = "assets/character_sprites/" + str(self.sprite_type) + "/Idle.png"
         ss = spritesheet.spritesheet(ss_url)
         img = Image.open(ss_url)
         for i in range(int(img.width/FRAME_WIDTH)):
@@ -32,7 +32,7 @@ class sprite_class():
 
     def get_running_images(self):
         fighter_running_images = []
-        ss_url = "character_sprites/" + str(self.sprite_type) + "/Run.png"
+        ss_url = "assets/character_sprites/" + str(self.sprite_type) + "/Run.png"
         ss = spritesheet.spritesheet(ss_url)
         img = Image.open(ss_url)
         for i in range (int(img.width/FRAME_WIDTH)):
@@ -48,7 +48,7 @@ class sprite_class():
 
     def get_attack_1_images(self):
         fighter_attack_1_images = []
-        ss_url = "character_sprites/" + str(self.sprite_type) + "/Attack_1.png"
+        ss_url = "assets/character_sprites/" + str(self.sprite_type) + "/Attack_1.png"
         ss = spritesheet.spritesheet(ss_url)
         img = Image.open(ss_url)
         for i in range (int(img.width/FRAME_WIDTH)):
@@ -64,7 +64,7 @@ class sprite_class():
 
     def get_attack_2_images(self):
         fighter_attack_2_images = []
-        ss_url = "character_sprites/" + str(self.sprite_type) + "/Attack_2.png"
+        ss_url = "assets/character_sprites/" + str(self.sprite_type) + "/Attack_2.png"
         ss = spritesheet.spritesheet(ss_url)
         img = Image.open(ss_url)
         for i in range (int(img.width/FRAME_WIDTH)):
@@ -81,7 +81,7 @@ class sprite_class():
 
     def get_attack_3_images(self):
         fighter_attack_3_images = []
-        ss_url = "character_sprites/" + str(self.sprite_type) + "/Attack_3.png"
+        ss_url = "assets/character_sprites/" + str(self.sprite_type) + "/Attack_3.png"
         ss = spritesheet.spritesheet(ss_url)
         img = Image.open(ss_url)
         for i in range (int(img.width/FRAME_WIDTH)):
@@ -98,7 +98,7 @@ class sprite_class():
 
     def get_jump_images(self):    
         fighter_jump_images = []
-        ss_url = "character_sprites/" + str(self.sprite_type) + "/Jump.png"
+        ss_url = "assets/character_sprites/" + str(self.sprite_type) + "/Jump.png"
         ss = spritesheet.spritesheet(ss_url)
         img = Image.open(ss_url)
         for i in range (int(img.width/FRAME_WIDTH)):

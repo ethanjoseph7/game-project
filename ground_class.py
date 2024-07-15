@@ -4,7 +4,7 @@ from pygame.locals import *
 class Ground(pygame.sprite.Sprite):
     def __init__(self, displaysurface):
         super().__init__()
-        ground_url = "platforms/water_2.png"
+        ground_url = "assets/platforms/water_2.png"
         self.image = pygame.image.load(ground_url)
         self.screen = displaysurface
         width = self.screen.get_width()

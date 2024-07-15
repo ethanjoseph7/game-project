@@ -70,14 +70,14 @@ def menu_screen():
     pygame.display.set_caption("Game Menu")
 
     # Load GIF frames
-    gif_frames = load_gif_frames('menu.gif')
+    gif_frames = load_gif_frames('assets/menu.gif')
     gif_frame_count = len(gif_frames)
     gif_frame_index = 0
 
     # Load button images
-    start_button_img = pygame.transform.scale(pygame.image.load('play_button.png'), (295, 150))
-    exit_button_img = pygame.transform.scale(pygame.image.load('exit_button.png'), (275, 150))
-    setting_button_img = pygame.transform.scale(pygame.image.load('setting_button.png'), (150, 150))
+    start_button_img = pygame.transform.scale(pygame.image.load('assets/buttons/play_button.png'), (295, 150))
+    exit_button_img = pygame.transform.scale(pygame.image.load('assets/buttons/exit_button.png'), (275, 150))
+    setting_button_img = pygame.transform.scale(pygame.image.load('assets/buttons/setting_button.png'), (150, 150))
 
     # Method to create buttons with images
     def image_button(image, pos, action=None):
@@ -128,14 +128,14 @@ def select_play_type():
     pygame.display.set_caption("Game Menu")
 
     # Load GIF frames
-    gif_frames = load_gif_frames('menu.gif')
+    gif_frames = load_gif_frames('assets/menu.gif')
     gif_frame_count = len(gif_frames)
     gif_frame_index = 0
 
     # Load button images
-    single_player_button_img = pygame.transform.scale(pygame.image.load('single_play.png'), (400, 275))
-    double_player_button_img = pygame.transform.scale(pygame.image.load('double_play.png'), (400, 275))
-    back_button_img = pygame.transform.scale(pygame.image.load('back_button.png'), (150, 150))
+    single_player_button_img = pygame.transform.scale(pygame.image.load('assets/buttons/single_play.png'), (400, 275))
+    double_player_button_img = pygame.transform.scale(pygame.image.load('assets/buttons/double_play.png'), (400, 275))
+    back_button_img = pygame.transform.scale(pygame.image.load('assets/buttons/back_button.png'), (150, 150))
 
     # Method to create buttons with images
     def image_button(image, pos, action=None):
@@ -199,10 +199,10 @@ def select_back():
 
     # Load the button images and names
     characters = [
-        {"name": "fighter", "image": pygame.transform.scale(pygame.image.load('fighter.png'), (260, 260))},
-        {"name": "samurai", "image": pygame.transform.scale(pygame.image.load('samurai.png'), (260, 260))},
-        {"name": "shinobi", "image": pygame.transform.scale(pygame.image.load('shinobi.png'), (260, 260))},
-        {"name": "skeleton", "image": pygame.transform.scale(pygame.image.load('skeleton.png'), (260, 260))}
+        {"name": "fighter", "image": pygame.transform.scale(pygame.image.load('assets/players/fighter.png'), (260, 260))},
+        {"name": "samurai", "image": pygame.transform.scale(pygame.image.load('assets/players/samurai.png'), (260, 260))},
+        {"name": "shinobi", "image": pygame.transform.scale(pygame.image.load('assets/players/shinobi.png'), (260, 260))},
+        {"name": "skeleton", "image": pygame.transform.scale(pygame.image.load('assets/players/skeleton.png'), (260, 260))}
     ]
     
 
@@ -347,10 +347,10 @@ def select_char():
 
     # Load the button images and names
     characters = [
-        {"name": "fighter", "image": pygame.transform.scale(pygame.image.load('fighter.png'), (260, 260))},
-        {"name": "samurai", "image": pygame.transform.scale(pygame.image.load('samurai.png'), (260, 260))},
-        {"name": "shinobi", "image": pygame.transform.scale(pygame.image.load('shinobi.png'), (260, 260))},
-        {"name": "skeleton", "image": pygame.transform.scale(pygame.image.load('skeleton.png'), (260, 260))}
+        {"name": "fighter", "image": pygame.transform.scale(pygame.image.load('assets/players/fighter.png'), (260, 260))},
+        {"name": "samurai", "image": pygame.transform.scale(pygame.image.load('assets/players/samurai.png'), (260, 260))},
+        {"name": "shinobi", "image": pygame.transform.scale(pygame.image.load('assets/players/shinobi.png'), (260, 260))},
+        {"name": "skeleton", "image": pygame.transform.scale(pygame.image.load('assets/players/skeleton.png'), (260, 260))}
     ]
 
     # Define button positions
@@ -379,8 +379,8 @@ def select_char():
     p2_dragging = False
 
     # Images button
-    start_button_img = pygame.transform.scale(pygame.image.load('play_button.png'), (295, 150))
-    back_button_img = pygame.transform.scale(pygame.image.load('back_button.png'), (150, 150))
+    start_button_img = pygame.transform.scale(pygame.image.load('assets/buttons/play_button.png'), (295, 150))
+    back_button_img = pygame.transform.scale(pygame.image.load('assets/buttons/back_button.png'), (150, 150))
     
     def image_button(image, pos, action=None):
         rect = image.get_rect(topleft=pos)
