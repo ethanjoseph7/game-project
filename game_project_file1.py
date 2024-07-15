@@ -378,7 +378,7 @@ def select_char():
     p1_dragging = False
     p2_dragging = False
 
-    # images button
+    # Images button
     start_button_img = pygame.transform.scale(pygame.image.load('play_button.png'), (295, 150))
     back_button_img = pygame.transform.scale(pygame.image.load('back_button.png'), (150, 150))
     
@@ -410,16 +410,14 @@ def select_char():
         screen.blit(p2_text, (p2_circle.centerx - p2_text.get_width() // 2, p2_circle.centery - p2_text.get_height() // 2))
 
     def start_game():
-        if player_1_name:
-            global player1_type
+        if player_1_name and player_2_name:  # Check if both players have selected their characters
+            global player1_type, player2_type
             player1_type = player_1_name
-        if player_2_name:
-            global player2_type
             player2_type = player_2_name
-        play_two_player()
-        
+            play_two_player()
+        else:
+            print("Both players must select a character before starting the game!")
 
-    
     def go_back():
         menu_screen()
 
@@ -440,8 +438,6 @@ def select_char():
                     mouse_x, mouse_y = event.pos
                     offset_x = p2_circle.x - mouse_x
                     offset_y = p2_circle.y - mouse_y
-                elif start_button_img.get_rect(topleft=(WIDTH // 2 - start_button_img.get_width() // 2, HEIGHT - 100)).collidepoint(event.pos):
-                    start_game()
             if event.type == pygame.MOUSEBUTTONUP:
                 if p1_dragging:
                     p1_dragging = False
@@ -482,7 +478,7 @@ def select_char():
 
         # Draw the start button
         image_button(start_button_img, (WIDTH // 2 - start_button_img.get_width() // 2, HEIGHT - start_button_img.get_height() - 50), start_game)
-        image_button(back_button_img, (25, 800), go_back)
+        image_button(back_button_img, (25, HEIGHT - start_button_img.get_height() - 50), go_back)
 
         # Display selected character names
         if player_1_name:
@@ -494,6 +490,7 @@ def select_char():
 
         # Update the display
         pygame.display.flip()
+
 
    
 
