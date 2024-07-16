@@ -11,7 +11,7 @@ import platforms
 from ctypes import *
 import player_class
 import imageio
-import asyncio
+
 from PIL import Image as PilImage
 
 pygame.init()
@@ -854,9 +854,8 @@ def play_one_player():
 
 
 
-async def main():
+def main():
     menu_screen()
-    await asyncio.sleep(0)
 
 
 if __name__ == "__main__":
