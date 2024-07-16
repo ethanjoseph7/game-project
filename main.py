@@ -345,6 +345,11 @@ def select_char():
     displaysurface = pygame.display.set_mode((WIDTH, HEIGHT))
     screen = displaysurface
     pygame.display.set_caption("Character Selection")
+    
+        # Load GIF frames
+    gif_frames = load_gif_frames('assets/menu.gif')
+    gif_frame_count = len(gif_frames)
+    gif_frame_index = 0
 
     # Load the button images and names
     characters = [
@@ -464,8 +469,9 @@ def select_char():
                     p2_circle.x = mouse_x + offset_x
                     p2_circle.y = mouse_y + offset_y
 
-        # Clear the screen
-        screen.fill((0, 0, 0))  # Black background
+        # Display GIF frame
+        displaysurface.blit(gif_frames[gif_frame_index], (0, 0))
+        gif_frame_index = (gif_frame_index + 1) % gif_frame_count
 
         # Draw the buttons and player indicators
         draw_buttons()
@@ -859,6 +865,6 @@ def main():
 
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    main()
     
 
