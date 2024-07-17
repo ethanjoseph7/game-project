@@ -11,6 +11,8 @@ import platforms
 from ctypes import *
 import player_class
 import imageio
+import asyncio
+
 
 from PIL import Image as PilImage
 
@@ -35,7 +37,6 @@ player2_type = "fighter"  # input("player two, fighter or samurai? ")
 
 single_play = False
 double_play = False
-
 
 # method to load the game to the front of the window on start 
 def bring_window_to_front():
@@ -95,6 +96,8 @@ def menu_screen():
     def start_game():
         # Replace this with your actual game starting function
         select_play_type()
+        return  # Break out of the while loop
+
 
     def quit_game():
         pygame.quit()
@@ -154,14 +157,17 @@ def select_play_type():
         global single_play
         single_play = True
         select_char()
+        return
         
     def double_play():
         global double_play
         double_play = True
         select_char()
+        return
     
     def go_back():
         menu_screen()
+        return
         
 
 
@@ -334,7 +340,6 @@ def select_back():
         pygame.display.flip()
 
 
-
 def select_char():
     # This method allows the players to select their characters for the game by dragging circles onto character buttons.
     # The selected characters are then used in the two-player game.
@@ -421,11 +426,18 @@ def select_char():
             player1_type = player_1_name
             player2_type = player_2_name
             play_two_player()
+            return
         else:
-            print("Both players must select a character before starting the game!")
+            error_text = font.render("Both players must select a character before starting the game!", True, (255, 0, 0))
+            screen.blit(error_text, (WIDTH // 2 - error_text.get_width() // 2, HEIGHT - start_button_img.get_height() - 100))
+            pygame.display.flip()
+            pygame.time.delay(5000)
+            error_text = font.render(" ", True, (0, 0, 0))
+            screen.blit(error_text, (WIDTH // 2 - error_text.get_width() // 2, HEIGHT - start_button_img.get_height() - 100))
 
     def go_back():
         menu_screen()
+        return
 
     # Main game loop
     running = True
@@ -499,12 +511,6 @@ def select_char():
         pygame.display.flip()
 
 
-   
-
-
-
-
-# Method to call when player chooses to play a 2 player game against friend
 def play_two_player():
     vec = pygame.math.Vector2  # 2 for two dimensional
     FramePerSec = pygame.time.Clock()
@@ -514,13 +520,13 @@ def play_two_player():
     bring_window_to_front()
 
     # Delayed imports and initializations
-    
+
     background = background_class.Background(displaysurface)
     ground = ground_class.Ground(displaysurface)
     ground_group = pygame.sprite.Group()
     ground_group.add(ground)
-    #player1_type = "Plent"  # input("player one, fighter or samurai? ")
-    #player2_type = "Fire_Spirit"  # input("player two, fighter or samurai? ")
+    # player1_type = "Plent"  # input("player one, fighter or samurai? ")
+    # player2_type = "Fire_Spirit"  # input("player two, fighter or samurai? ")
     player_1 = player_class.Player(vec, displaysurface, player1_type)
     player_2 = player_class.Player_2(vec, displaysurface, player2_type)
 
@@ -538,39 +544,34 @@ def play_two_player():
     platform_group.add(platform1, platform2, platform3)
 
     fullscreen = False
-    
+
     font = pygame.font.SysFont('Arial', 24)
 
-
-
     players = (player_1, player_2)
-
 
     # Function for creating health bar
     def draw_health_bar(player, x, y):
         ratio = player.health / 100
-        if(ratio  <= 0):
+        if ratio <= 0:
             if player.number == 1:
                 print("player 2 wins")
             else:
                 print("player 1 wins")
             pygame.quit()
             sys.exit()
-            
+
         if player.number == 1:
             pygame.draw.rect(displaysurface, WHITE, (x - 3, y - 2, 404, 34))
             pygame.draw.rect(displaysurface, RED, (x, y, 400, 30))
-            pygame.draw.rect(displaysurface, BLACK, (x, y, 400*(1-ratio), 30))
+            pygame.draw.rect(displaysurface, BLACK, (x, y, 400 * (1 - ratio), 30))
         elif player.number == 2:
             pygame.draw.rect(displaysurface, WHITE, (x - 3, y - 2, 404, 34))
             pygame.draw.rect(displaysurface, BLACK, (x, y, 400, 30))
-            pygame.draw.rect(displaysurface, RED, (x, y, 400*ratio, 30))
-
+            pygame.draw.rect(displaysurface, RED, (x, y, 400 * ratio, 30))
 
     def update_health():
         draw_health_bar(player_2, 20, 30)
         draw_health_bar(player_1, 1280, 30)
-
 
     player_1_last_attack = pygame.time.get_ticks()
     player_2_last_attack = pygame.time.get_ticks()
@@ -578,25 +579,79 @@ def play_two_player():
     player_1_last_frame = -1
     player_2_last_frame = -1
 
+    # Function to display in-game menu
 
+    def show_menu():
+        menu_font = pygame.font.SysFont('Arial', 30)
+        menu_surface = pygame.Surface((WIDTH, HEIGHT), pygame.SRCALPHA)
+        menu_surface.fill((0, 0, 0, 128))  # Semi-transparent black background
+
+        # Load images for buttons
+        resume_button_img = pygame.transform.scale(pygame.image.load('assets/buttons/resume_button.png'), (200, 100))
+        brightness_button_img = pygame.transform.scale(pygame.image.load('assets/buttons/brightness_button.png'), (200, 100))
+        home_button_img = pygame.transform.scale(pygame.image.load('assets/buttons/home_button.png'), (200, 100))
+        key_bindings_button_img = pygame.transform.scale(pygame.image.load('assets/buttons/key_bindings_button.png'), (200, 100))
+        restart_button_img = pygame.transform.scale(pygame.image.load('assets/buttons/restart_button.png'), (200, 100))
+
+        def image_button(image, pos, action=None):
+            rect = image.get_rect(topleft=pos)
+            mouse = pygame.mouse.get_pos()
+            click = pygame.mouse.get_pressed()
+
+            if rect.collidepoint(mouse):
+                if click[0] == 1 and action is not None:
+                    action()
+
+            menu_surface.blit(image, rect)
+
+        # Display buttons
+        image_button(resume_button_img, (WIDTH // 2 - resume_button_img.get_width() // 2, HEIGHT // 2 - resume_button_img.get_height() // 2 - resume_button_img.get_height() // 2 // 2))
+        image_button(key_bindings_button_img, (WIDTH // 2 - key_bindings_button_img.get_width() // 2, HEIGHT // 2 - key_bindings_button_img.get_height() // 2 + 90 - key_bindings_button_img.get_height() // 2 // 2))
+        image_button(brightness_button_img, (WIDTH // 2 - brightness_button_img.get_width() // 2, HEIGHT // 2 - brightness_button_img.get_height() // 2 + 180 - brightness_button_img.get_height() // 2 // 2))
+        image_button(restart_button_img, (WIDTH // 2 - restart_button_img.get_width() // 2, HEIGHT // 2 - restart_button_img.get_height() // 2 + 270 - restart_button_img.get_height() // 2 // 2))
+        image_button(home_button_img, (WIDTH // 2 - home_button_img.get_width() // 2, HEIGHT // 2 - home_button_img.get_height() // 2 + 360 - home_button_img.get_height() // 2 // 2))
+
+
+        displaysurface.blit(menu_surface, (0, 0))
+        pygame.display.update()
+
+        while True:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    sys.exit()
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_ESCAPE:
+                        return
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    if resume_button_img.get_rect(topleft=(WIDTH // 2 - resume_button_img.get_width() // 2, HEIGHT // 2 - resume_button_img.get_height() // 2)).collidepoint(event.pos):
+                        return
+                    elif key_bindings_button_img.get_rect(topleft=(WIDTH // 2 - key_bindings_button_img.get_width() // 2, HEIGHT // 2 - key_bindings_button_img.get_height() // 2 + 90)).collidepoint(event.pos):
+                        print("Key Bindings button clicked")  # Add key bindings functionality here
+                    elif brightness_button_img.get_rect(topleft=(WIDTH // 2 - brightness_button_img.get_width() // 2, HEIGHT // 2 - brightness_button_img.get_height() // 2 + 180)).collidepoint(event.pos):
+                        print("Brightness button clicked")  # Add brightness control functionality here
+                    elif restart_button_img.get_rect(topleft=(WIDTH // 2 - restart_button_img.get_width() // 2, HEIGHT // 2 - restart_button_img.get_height() // 2 + 270)).collidepoint(event.pos):
+                        play_two_player()  # Ensure play_two_player() is defined
+                        return  
+                    elif home_button_img.get_rect(topleft=(WIDTH // 2 - home_button_img.get_width() // 2, HEIGHT // 2 - home_button_img.get_height() // 2 + 360)).collidepoint(event.pos):
+                        menu_screen()  # Ensure menu_screen() is defined
+                        return
 
     # game loop
-
     while True:
-        FPS_CLOCK.tick(FPS)
+        FramePerSec.tick(FPS)
         player_1.idle()
         player_2.idle()
         for event in pygame.event.get():
             if event.type == QUIT:
                 pygame.quit()
                 sys.exit()
-    
+
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
-                    pygame.quit()
-                    sys.exit()
+                    show_menu()
 
-                #Player 1 controls
+                # Player 1 controls
                 if event.key == pygame.K_UP:
                     player_1.jump(ground_group, platform_group)
 
@@ -604,7 +659,7 @@ def play_two_player():
                     player_1.fall(platform_group)
 
                 if event.key == pygame.K_RSHIFT:
-                    if(pygame.time.get_ticks() - 550 > player_1_last_attack):
+                    if pygame.time.get_ticks() - 550 > player_1_last_attack:
                         player_1.attack_sheet = 0
                         player_1.attack_frame = 0
                         player_1_last_frame = -1
@@ -614,22 +669,20 @@ def play_two_player():
                     diff_frame = player_1.attack_sheet != player_1_last_frame
                     legit_attack = hits and diff_frame
                     if legit_attack and player_1.facing(player_2):
-
-                        
                         player_2.health -= player_1.damage
                         update_health()
 
                     player_1_last_attack = pygame.time.get_ticks()
                     player_1_last_frame = player_1.attack_sheet
-                            
-                #Player 2 controls
+
+                # Player 2 controls
                 if event.key == pygame.K_w:
                     player_2.jump(ground_group, platform_group)
                 if event.key == pygame.K_s:
                     player_2.fall(platform_group)
-                
+
                 if event.key == pygame.K_LSHIFT:
-                    if(pygame.time.get_ticks() - 550 > player_2_last_attack):
+                    if pygame.time.get_ticks() - 550 > player_2_last_attack:
                         player_2.attack_sheet = 0
                         player_2.attack_frame = 0
                         player_2_last_frame = -1
@@ -639,7 +692,7 @@ def play_two_player():
                     legit_attack = hits and diff_frame
                     if legit_attack and player_2.facing(player_1):
                         player_1.health -= player_2.damage
-                        update_health
+                        update_health()
                     player_2_last_attack = pygame.time.get_ticks()
                     player_2_last_frame = player_2.attack_sheet
 
@@ -650,7 +703,7 @@ def play_two_player():
         background.render()
         ground.render()
         platform_group.draw(displaysurface)
-        
+
         update_health()
         player_2.update()
         player_1.update()
@@ -662,23 +715,12 @@ def play_two_player():
         player_2.move()
         displaysurface.blit(player_1.image, player_1.rect)
         displaysurface.blit(player_2.image, player_2.rect)
-        player_2.move()
-        player_1.move()
-        player_1.update()
-        player_2.update()
-        
-        
-        # Render player numbers above each player
-        player_text_surface = font.render("Player 1", True, (255, 255, 255))
-        player_text_rect = player_text_surface.get_rect(center=(player_1.rect.centerx, player_1.rect.top - 20))
-        displaysurface.blit(player_text_surface, player_text_rect)
+        player_2_group.draw(displaysurface)
+        player_group.draw(displaysurface)
 
-        player_2_text_surface = font.render("Player 2", True, (255, 255, 255))
-        player_2_text_rect = player_2_text_surface.get_rect(center=(player_2.rect.centerx, player_2.rect.top - 20))
-        displaysurface.blit(player_2_text_surface, player_2_text_rect)
-    
-        
         pygame.display.update()
+
+    #bring_window_to_front()
 
 
 # Method to call when player chooses to play a single player game against a Bot
@@ -858,13 +900,11 @@ def play_one_player():
         pygame.display.update()
         
 
-
-
-def main():
-    menu_screen()
+async def main():
+    asyncio.create_task(menu_screen())
 
 
 if __name__ == "__main__":
-    main()
+    asyncio.run(main())
     
 

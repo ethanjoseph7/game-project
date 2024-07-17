@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Python Game</title>
+</head>
+<body>
+    <h1>Python Game</h1>
+    <div id="game-container"></div>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.min.js"></script>
+    <script type="text/javascript" charset="utf-8">
+        var socket = io();
+        socket.on('connect', function() {
+            console.log('Connected to server');
+        });
+
+        socket.on('game_update', function(data) {
+            console.log('Game update received:', data);
+            // Update game container with new game state
+            document.getElementById('game-container').innerText = data.data;
+        });
+    </script>
+</body>
+</html>
