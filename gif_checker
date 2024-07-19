@@ -1,0 +1,181 @@
+
+# Load GIF frames once and cache them
+def ld_gif_frames(file_path):
+    pil_image = Image.open(file_path)
+    frames = []
+    try:
+        while True:
+            frame = pil_image.copy().convert("RGBA")
+            pygame_image = pygame.image.fromstring(frame.tobytes(), frame.size, frame.mode)
+            frames.append(pygame_image)
+            pil_image.seek(pil_image.tell() + 1)
+    except EOFError:
+        pass
+    return frames
+
+# Caching background images and GIF frames
+def cache_backgrounds():
+    backgrounds = [f for f in os.listdir('assets/backgrounds') if os.path.isfile(os.path.join('assets/backgrounds', f))]
+    background_images = {bg: pygame.image.load(os.path.join('assets/backgrounds', bg)).convert_alpha() for bg in backgrounds if bg.endswith('.png')}
+    background_gifs = {bg: ld_gif_frames(os.path.join('assets/backgrounds', bg)) for bg in backgrounds if bg.endswith('.gif')}
+    background_thumbnails = {bg: pygame.transform.scale(background_images[bg], (180, 120)) for bg in background_images}
+    background_thumbnails.update({bg: pygame.transform.scale(background_gifs[bg][0], (180, 120)) for bg in background_gifs})  # Use the first frame of GIF for thumbnail
+    return backgrounds, background_images, background_gifs, background_thumbnails
+
+backgrounds, background_images, background_gifs, background_thumbnails = cache_backgrounds()
+
+# Main function to handle the background selection
+def select_back():
+    global background_name
+    pygame.init()
+    FramePerSec = pygame.time.Clock()
+    displaysurface = pygame.display.set_mode((WIDTH, HEIGHT))
+    pygame.display.set_caption("Game Menu")
+
+    # Load GIF frames for the menu background
+    gif_frames = load_gif_frames('assets/menu.gif')
+    gif_frame_count = len(gif_frames)
+    gif_frame_index = 0
+
+    # Load button images
+    back_button_img = pygame.transform.scale(pygame.image.load('assets/buttons/back_button.png'), (150, 150))
+    play_button_img = pygame.transform.scale(pygame.image.load('assets/buttons/play_button.png'), (300, 150))
+    random_button_img = pygame.transform.scale(pygame.image.load('assets/buttons/restart_button.png'), (300, 150))
+
+    # Initialize variables for scrolling and selected background
+    scroll_offset = 0
+    max_scroll = max(0, (len(backgrounds) // 4 + (1 if len(backgrounds) % 4 != 0 else 0)) * 135 - 450)
+    scroll_surface_pos = (200, 200)
+    box_size = (400, 300)
+    box_gif_frames = ld_gif_frames("assets/backgrounds/aldo.gif")
+    box_gif_frames = [pygame.transform.scale(frame, box_size) for frame in box_gif_frames]
+    box_rect = box_gif_frames[0].get_rect(topleft=(WIDTH - 440, 200))
+    box_frame_index = 0
+    box_frame_time = 0
+
+    def draw_button_with_shadow(image, pos, surface, offset=(5, 5), shadow_color=(50, 50, 50)):
+        shadow_image = image.copy()
+        shadow_image.fill(shadow_color, special_flags=pygame.BLEND_RGBA_MULT)
+        surface.blit(shadow_image, (pos[0] + offset[0], pos[1] + offset[1]))
+        surface.blit(image, pos)
+
+    def image_button(image, pos, surface, action=None):
+        rect = image.get_rect(topleft=pos)
+        mouse = pygame.mouse.get_pos()
+        click = pygame.mouse.get_pressed()
+
+        if surface == displaysurface:
+            mouse_rel = mouse
+        else:
+            mouse_rel = (mouse[0] - scroll_surface_pos[0], mouse[1] - scroll_surface_pos[1])
+
+        if rect.collidepoint(mouse_rel):
+            jump_offset = -7  # How much the button should "jump" when hovered
+            draw_button_with_shadow(image, (pos[0], pos[1] + jump_offset), surface)
+            if click[0] == 1 and action is not None:
+                action()
+                pygame.time.wait(200)  # Add a short delay to prevent multiple clicks
+        else:
+            draw_button_with_shadow(image, pos, surface)
+
+    def go_back():
+        select_play_type()
+        return
+
+    def select_character():
+        if background_name:
+            select_char()
+        else:
+            show_warning("Select a background first!")
+        return
+
+    def set_background(name):
+        global background_name
+        background_name = name
+        return
+
+    def select_random_background():
+        global background_name
+        background_name = random.choice(backgrounds)
+        return
+
+    def show_warning(message):
+        font = pygame.font.SysFont(None, 36)
+        text = font.render(message, True, (255, 0, 0))
+        text_rect = text.get_rect(center=(WIDTH - play_button_img.get_width() / 2, 750 + play_button_img.get_height() / 2))
+        displaysurface.blit(text, text_rect)
+        pygame.display.update(text_rect)  # Update only the warning text area
+        pygame.time.wait(2000)
+
+    selected_background_img = None
+    selected_background_gif_frames = []
+    selected_background_is_gif = False
+
+    while True:
+        FramePerSec.tick(FPS)
+
+        # Display GIF frame
+        displaysurface.blit(gif_frames[gif_frame_index], (0, 0))
+        gif_frame_index = (gif_frame_index + 1) % gif_frame_count
+
+        current_time = pygame.time.get_ticks()
+
+        # Update box animation
+        if current_time - box_frame_time >= 100:
+            box_frame_index = (box_frame_index + 1) % len(box_gif_frames)
+            box_frame_time = current_time
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                if event.button == 4:  # Scroll up
+                    scroll_offset = max(scroll_offset - 30, 0)
+                elif event.button == 5:  # Scroll down
+                    scroll_offset = min(scroll_offset + 30, max_scroll)
+
+        # Display buttons
+        image_button(back_button_img, (25, 25), displaysurface, go_back)
+        image_button(play_button_img, (WIDTH - play_button_img.get_width() * 3, 750), displaysurface, select_character)
+        image_button(random_button_img, (WIDTH - random_button_img.get_width() * 4.5, 750), displaysurface, select_random_background)
+
+        # Create a surface for the scrollable area
+        scroll_surface = pygame.Surface((1000, 450), pygame.SRCALPHA)
+
+        # Render background image buttons in a grid format (4 per row)
+        for i, background in enumerate(backgrounds):
+            x = (i % 4) * 240 + 15
+            y = (i // 4) * 135 - scroll_offset
+            image_button(background_thumbnails[background], (x, y), scroll_surface, action=lambda bg=background: set_background(bg))
+
+        displaysurface.blit(scroll_surface, scroll_surface_pos)
+
+        # Draw the scrollbar
+        if max_scroll > 0:
+            scroll_bar_y = scroll_surface_pos[1] + int((scroll_offset / max_scroll) * (450 - 75))
+        else:
+            scroll_bar_y = scroll_surface_pos[1]
+
+        pygame.draw.rect(displaysurface, (100, 100, 100), (scroll_surface_pos[0] + 1000, scroll_bar_y, 30, 75))
+
+        # Display selected background on the right side
+        if background_name:
+            if background_name.endswith('.png'):
+                selected_background_img = pygame.transform.scale(background_images[background_name], box_size)
+                displaysurface.blit(selected_background_img, box_rect.topleft)
+                selected_background_is_gif = False
+            elif background_name.endswith('.gif'):
+                selected_background_gif_frames = background_gifs[background_name]
+                selected_background_gif_frames = [pygame.transform.scale(frame, box_size) for frame in selected_background_gif_frames]
+                selected_background_is_gif = True
+            
+            if selected_background_is_gif:
+                box_gif_frame_index = (current_time // 100) % len(selected_background_gif_frames)
+                displaysurface.blit(selected_background_gif_frames[box_gif_frame_index], box_rect.topleft)
+            else:
+                displaysurface.blit(selected_background_img, box_rect.topleft)
+
+        pygame.display.update()
+
+

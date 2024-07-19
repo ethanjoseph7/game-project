@@ -3,18 +3,12 @@ from pygame.locals import *
 import sys
 import random
 import ctypes
-from tkinter import filedialog
 from tkinter import *
-import ground_class
-import background_class
-import platforms
-from ctypes import *
 import player_class
 import imageio
-import asyncio
-
-
-from PIL import Image as PilImage
+import os
+from utils import load_gif_frames
+from PIL import Image
 
 pygame.init()
 
@@ -25,20 +19,25 @@ FRIC = -0.7
 FPS = 90
 FPS_CLOCK = pygame.time.Clock()
 COUNT = 0
-SIZE_MULTIPLIER = 1.9*1.5
+SIZE_MULTIPLIER = 1.9 * 1.5
 RED = (255, 0, 0)
 YELLOW = (255, 255, 0)
 WHITE = (255, 255, 255)
-BLACK = (0,0,0)
+BLACK = (0, 0, 0)
 
+vec = pygame.math.Vector2
+FramePerSec = pygame.time.Clock()
+displaysurface = pygame.display.set_mode((WIDTH, HEIGHT))
 
-player1_type = "fighter"  # input("player one, fighter or samurai? ")
-player2_type = "fighter"  # input("player two, fighter or samurai? ")
+player1_type = "fighter"
+player2_type = "fighter"
+background_name = None
 
 single_play = False
 double_play = False
 
-# method to load the game to the front of the window on start 
+
+# Method to bring the game window to the front
 def bring_window_to_front():
     wm_info = pygame.display.get_wm_info()
     if 'window' in wm_info:
@@ -46,43 +45,80 @@ def bring_window_to_front():
         ctypes.windll.user32.SetForegroundWindow(hwnd)
     else:
         print("Warning: 'window' key not found in wm_info. Unable to bring window to front.")
-        
 
-# This method loads a GIF file, converts each frame to a pygame Surface, scales each frame to the screen size, 
-# and returns a list of pygame Surfaces representing each frame of the GIF.
-def load_gif_frames(filename):
-    gif = imageio.mimread(filename)
-    frames = []
-    for frame in gif:
-        pil_image = PilImage.fromarray(frame)
-        pil_image = pil_image.convert("RGBA")
-        mode = pil_image.mode
-        size = pil_image.size
-        data = pil_image.tobytes()
-        frame_surface = pygame.image.fromstring(data, size, mode)
-        frame_surface = pygame.transform.scale(frame_surface, (WIDTH, HEIGHT))
-        frames.append(frame_surface)
-    return frames
 
 # Method for the menu screen at the start of the game
 def menu_screen():
-    vec = pygame.math.Vector2
-    FramePerSec = pygame.time.Clock()
-    displaysurface = pygame.display.set_mode((WIDTH, HEIGHT))
-    pygame.display.set_caption("Game Menu")
-
-    # Load GIF frames
-    gif_frames = load_gif_frames('assets/menu.gif')
+    gif_frames = load_gif_frames('assets/menu.gif', WIDTH, HEIGHT)
     gif_frame_count = len(gif_frames)
     gif_frame_index = 0
 
-    # Load button images
     start_button_img = pygame.transform.scale(pygame.image.load('assets/buttons/play_button.png'), (295, 150))
     exit_button_img = pygame.transform.scale(pygame.image.load('assets/buttons/exit_button.png'), (275, 150))
     setting_button_img = pygame.transform.scale(pygame.image.load('assets/buttons/setting_button.png'), (150, 150))
 
-    # Method to create buttons with images
-    def image_button(image, pos, action=None):
+    rotation_angle = 0
+
+    def setting_menu():
+        menu_font = pygame.font.SysFont('Arial', 30)
+        menu_surface = pygame.Surface((WIDTH, HEIGHT), pygame.SRCALPHA)
+        menu_surface.fill((0, 0, 0, 128))
+
+        resume_button_img = pygame.transform.scale(pygame.image.load('assets/buttons/resume_button.png'), (300, 150))
+        brightness_button_img = pygame.transform.scale(pygame.image.load('assets/buttons/brightness_button.png'), (300, 150))
+        home_button_img = pygame.transform.scale(pygame.image.load('assets/buttons/home_button.png'), (300, 150))
+        key_bindings_button_img = pygame.transform.scale(pygame.image.load('assets/buttons/key_bindings_button.png'), (300, 150))
+        restart_button_img = pygame.transform.scale(pygame.image.load('assets/buttons/restart_button.png'), (300, 150))
+
+        def image_button(image, pos, action=None):
+            rect = image.get_rect(topleft=pos)
+            mouse = pygame.mouse.get_pos()
+            click = pygame.mouse.get_pressed()
+
+            if rect.collidepoint(mouse):
+                if click[0] == 1 and action is not None:
+                    action()
+
+            menu_surface.blit(image, rect)
+
+        image_button(resume_button_img, (WIDTH // 2 - resume_button_img.get_width() // 2, 50))
+        image_button(key_bindings_button_img, (WIDTH // 2 - key_bindings_button_img.get_width() // 2, 212.5))
+        image_button(brightness_button_img, (WIDTH // 2 - brightness_button_img.get_width() // 2, 375))
+        image_button(restart_button_img, (WIDTH // 2 - restart_button_img.get_width() // 2, 537.5))
+        image_button(home_button_img, (WIDTH // 2 - home_button_img.get_width() // 2, 700))
+
+        displaysurface.blit(menu_surface, (0, 0))
+        pygame.display.update()
+
+        while True:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    sys.exit()
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_ESCAPE:
+                        return
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    if resume_button_img.get_rect(topleft=(WIDTH // 2 - resume_button_img.get_width() // 2, 50)).collidepoint(event.pos):
+                        return
+                    elif key_bindings_button_img.get_rect(topleft=(WIDTH // 2 - key_bindings_button_img.get_width() // 2, 212.5)).collidepoint(event.pos):
+                        print("Key Bindings button clicked")
+                    elif brightness_button_img.get_rect(topleft=(WIDTH // 2 - brightness_button_img.get_width() // 2, 375)).collidepoint(event.pos):
+                        print("Brightness button clicked")
+                    elif restart_button_img.get_rect(topleft=(WIDTH // 2 - restart_button_img.get_width() // 2, 537.5)).collidepoint(event.pos):
+                        play_two_player()
+                        return
+                    elif home_button_img.get_rect(topleft=(WIDTH // 2 - home_button_img.get_width() // 2, 700)).collidepoint(event.pos):
+                        menu_screen()
+                        return
+
+    def draw_button_with_shadow(image, pos, offset=(5, 5), shadow_color=(50, 50, 50)):
+        shadow_image = image.copy()
+        shadow_image.fill(shadow_color, special_flags=pygame.BLEND_RGBA_MULT)
+        displaysurface.blit(shadow_image, (pos[0] + offset[0], pos[1] + offset[1]))
+        displaysurface.blit(image, pos)
+
+    def image_button(image, pos, action=None, rotate=False, jump=False):
         rect = image.get_rect(topleft=pos)
         mouse = pygame.mouse.get_pos()
         click = pygame.mouse.get_pressed()
@@ -90,25 +126,29 @@ def menu_screen():
         if rect.collidepoint(mouse):
             if click[0] == 1 and action is not None:
                 action()
-
-        displaysurface.blit(image, rect)
+            if rotate:
+                rotated_image = pygame.transform.rotate(image, rotation_angle)
+                rect = rotated_image.get_rect(center=rect.center)
+                draw_button_with_shadow(rotated_image, rect.topleft)
+            elif jump:
+                jump_pos = (pos[0], pos[1] - 10)
+                draw_button_with_shadow(image, jump_pos)
+            else:
+                draw_button_with_shadow(image, rect.topleft)
+        else:
+            draw_button_with_shadow(image, rect.topleft)
 
     def start_game():
-        # Replace this with your actual game starting function
         select_play_type()
-        return  # Break out of the while loop
-
+        return
 
     def quit_game():
         pygame.quit()
         sys.exit()
-    def setting_menu():
-        pass
 
     while True:
         FramePerSec.tick(FPS)
 
-        # Display GIF frame
         displaysurface.blit(gif_frames[gif_frame_index], (0, 0))
         gif_frame_index = (gif_frame_index + 1) % gif_frame_count
 
@@ -117,29 +157,37 @@ def menu_screen():
                 pygame.quit()
                 sys.exit()
 
-        # Display buttons
-        image_button(start_button_img, (WIDTH // 2 - start_button_img.get_width() // 2, HEIGHT // 2 - 50), start_game)
-        image_button(exit_button_img, (WIDTH // 2 - exit_button_img.get_width() // 2, HEIGHT // 2 + 50), quit_game)
-        image_button(setting_button_img, (25, 25), setting_menu)
+        rotation_angle += 1
+        if rotation_angle >= 360:
+            rotation_angle = 0
+
+        image_button(start_button_img, (WIDTH // 2 - start_button_img.get_width() // 2, HEIGHT // 2 - 100), start_game, jump=True)
+        image_button(exit_button_img, (WIDTH // 2 - exit_button_img.get_width() // 2, HEIGHT // 2), quit_game, jump=True)
+        image_button(setting_button_img, (25, 25), setting_menu, rotate=True)
 
         pygame.display.update()
-        
+
+
 def select_play_type():
     global single_play, double_play
-    vec = pygame.math.Vector2
-    FramePerSec = pygame.time.Clock()
-    displaysurface = pygame.display.set_mode((WIDTH, HEIGHT))
-    pygame.display.set_caption("Game Menu")
+
 
     # Load GIF frames
-    gif_frames = load_gif_frames('assets/menu.gif')
+    gif_frames = load_gif_frames('assets/menu.gif', WIDTH, HEIGHT)
     gif_frame_count = len(gif_frames)
     gif_frame_index = 0
 
     # Load button images
-    single_player_button_img = pygame.transform.scale(pygame.image.load('assets/buttons/single_play.png'), (400, 275))
-    double_player_button_img = pygame.transform.scale(pygame.image.load('assets/buttons/double_play.png'), (400, 275))
+    single_player_button_img = pygame.transform.scale(pygame.image.load('assets/buttons/single_play.png'), (475, 275))
+    double_player_button_img = pygame.transform.scale(pygame.image.load('assets/buttons/double_play.png'), (475, 275))
     back_button_img = pygame.transform.scale(pygame.image.load('assets/buttons/back_button.png'), (150, 150))
+
+    # Method to draw a button with a shadow
+    def draw_button_with_shadow(image, pos, offset=(5, 5), shadow_color=(50, 50, 50)):
+        shadow_image = image.copy()
+        shadow_image.fill(shadow_color, special_flags=pygame.BLEND_RGBA_MULT)
+        displaysurface.blit(shadow_image, (pos[0] + offset[0], pos[1] + offset[1]))
+        displaysurface.blit(image, pos)
 
     # Method to create buttons with images
     def image_button(image, pos, action=None):
@@ -148,28 +196,28 @@ def select_play_type():
         click = pygame.mouse.get_pressed()
 
         if rect.collidepoint(mouse):
+            jump_offset = -10  # How much the button should "jump" when hovered
+            draw_button_with_shadow(image, (pos[0], pos[1] + jump_offset))
             if click[0] == 1 and action is not None:
                 action()
-
-        displaysurface.blit(image, rect)
+        else:
+            draw_button_with_shadow(image, pos)
 
     def single_play():
         global single_play
         single_play = True
-        select_char()
+        select_back()
         return
         
     def double_play():
         global double_play
         double_play = True
-        select_char()
+        select_back()
         return
     
     def go_back():
         menu_screen()
         return
-        
-
 
     while True:
         FramePerSec.tick(FPS)
@@ -185,159 +233,206 @@ def select_play_type():
 
         # Display buttons
         image_button(single_player_button_img, (WIDTH // 3 - single_player_button_img.get_width(), HEIGHT // 2.5), single_play)
-        image_button(double_player_button_img, (WIDTH // 2 + double_player_button_img.get_width() - double_player_button_img.get_width() //3, HEIGHT // 2.5 ), double_play)
+        image_button(double_player_button_img, (WIDTH // 2 + double_player_button_img.get_width() - double_player_button_img.get_width() // 3, HEIGHT // 2.5), double_play)
         image_button(back_button_img, (25, 25), go_back)
 
         pygame.display.update()
         
 
+
+
+
+
+
+# Load GIF frames once and cache them
+def ld_gif_frames(file_path):
+    pil_image = Image.open(file_path)
+    frames = []
+    try:
+        while True:
+            frame = pil_image.copy().convert("RGBA")
+            pygame_image = pygame.image.fromstring(frame.tobytes(), frame.size, frame.mode)
+            frames.append(pygame_image)
+            pil_image.seek(pil_image.tell() + 1)
+    except EOFError:
+        pass
+    return frames
+
+# Caching background images and GIF frames
+def cache_backgrounds():
+    backgrounds = [f for f in os.listdir('assets/backgrounds') if os.path.isfile(os.path.join('assets/backgrounds', f))]
+    background_images = {bg: pygame.image.load(os.path.join('assets/backgrounds', bg)).convert_alpha() for bg in backgrounds if bg.endswith('.png')}
+    background_gifs = {bg: ld_gif_frames(os.path.join('assets/backgrounds', bg)) for bg in backgrounds if bg.endswith('.gif')}
+    background_thumbnails = {bg: pygame.transform.scale(background_images[bg], (180, 120)) for bg in background_images}
+    background_thumbnails.update({bg: pygame.transform.scale(background_gifs[bg][0], (180, 120)) for bg in background_gifs})  # Use the first frame of GIF for thumbnail
+    return backgrounds, background_images, background_gifs, background_thumbnails
+
+backgrounds, background_images, background_gifs, background_thumbnails = cache_backgrounds()
+
+# Main function to handle the background selection
 def select_back():
-    # This method allows the players to select their characters for the game by dragging circles onto character buttons.
-    # The selected characters are then used in the two-player game.
+    global background_name
+
+
+    # Load GIF frames
+    gif_frames = load_gif_frames('assets/menu.gif', WIDTH, HEIGHT)
+    gif_frame_count = len(gif_frames)
+    gif_frame_index = 0
     
-    global player1_type, player2_type
+    # Load button images
+    back_button_img = pygame.transform.scale(pygame.image.load('assets/buttons/back_button.png'), (150, 150))
+    play_button_img = pygame.transform.scale(pygame.image.load('assets/buttons/play_button.png'), (300, 150))
+    random_button_img = pygame.transform.scale(pygame.image.load('assets/buttons/random_button.png'), (300, 150))
+
+    # Initialize variables for scrolling and selected background
+    scroll_offset = 0
+    max_scroll = max(0, (len(backgrounds) // 4 + (1 if len(backgrounds) % 4 != 0 else 0)) * 135 - 450)
+    scroll_surface_pos = (200, 200)
     
-    vec = pygame.math.Vector2
-    displaysurface = pygame.display.set_mode((WIDTH, HEIGHT))
-    screen = displaysurface
-    pygame.display.set_caption("Character Selection")
-    
-    
+    box_size = (400, 200)
+    box_gif_frames = ld_gif_frames("assets/backgrounds/aldo.gif")
+    box_gif_frames = [pygame.transform.scale(frame, box_size) for frame in box_gif_frames]
+    box_rect = box_gif_frames[0].get_rect(topleft=(WIDTH - 440, 200))
+    box_frame_index = 0
+    box_frame_time = 0
 
-    # Load the button images and names
-    characters = [
-        {"name": "fighter", "image": pygame.transform.scale(pygame.image.load('assets/players/fighter.png'), (260, 260))},
-        {"name": "samurai", "image": pygame.transform.scale(pygame.image.load('assets/players/samurai.png'), (260, 260))},
-        {"name": "shinobi", "image": pygame.transform.scale(pygame.image.load('assets/players/shinobi.png'), (260, 260))},
-        {"name": "skeleton", "image": pygame.transform.scale(pygame.image.load('assets/players/skeleton.png'), (260, 260))}
-    ]
-    
 
-    # Define button positions
-    button_rects = [
-        characters[0]["image"].get_rect(topleft=(200, 150)),
-        characters[1]["image"].get_rect(topleft=(550, 150)),
-        characters[2]["image"].get_rect(topleft=(900, 150)),
-        characters[3]["image"].get_rect(topleft=(1250, 150))
-    ]
+    def draw_button_with_shadow(image, pos, surface, offset=(5, 5), shadow_color=(50, 50, 50)):
+        shadow_image = image.copy()
+        shadow_image.fill(shadow_color, special_flags=pygame.BLEND_RGBA_MULT)
+        surface.blit(shadow_image, (pos[0] + offset[0], pos[1] + offset[1]))
+        surface.blit(image, pos)
 
-    # Set up the font for the subheading
-    font = pygame.font.SysFont('Arial', 24)
-    subheading_texts = [char["name"] for char in characters]
-    subheading_surfaces = [font.render(text, True, (255, 255, 255)) for text in subheading_texts]
+    def image_button(image, pos, surface, action=None):
+        rect = image.get_rect(topleft=pos)
+        mouse = pygame.mouse.get_pos()
+        click = pygame.mouse.get_pressed()
 
-    # Player selection variables
-    selected_player_1 = None
-    selected_player_2 = None
-    player_1_name = None
-    player_2_name = None
+        if surface == displaysurface:
+            mouse_rel = mouse
+        else:
+            mouse_rel = (mouse[0] - scroll_surface_pos[0], mouse[1] - scroll_surface_pos[1])
 
-    # Draggable circles
-    p1_circle = pygame.Rect(50, 50, 80, 80)
-    p2_circle = pygame.Rect(150, 50, 80, 80)
-    p1_dragging = False
-    p2_dragging = False
+        if rect.collidepoint(mouse_rel):
+            jump_offset = -7  # How much the button should "jump" when hovered
+            draw_button_with_shadow(image, (pos[0], pos[1] + jump_offset), surface)
+            if click[0] == 1 and action is not None:
+                action()
+                pygame.time.wait(200)  # Add a short delay to prevent multiple clicks
+        else:
+            draw_button_with_shadow(image, pos, surface)
 
-    # Start button
-    start_button_rect = pygame.Rect(WIDTH // 2 - 100, HEIGHT - 100, 200, 50)
+    def go_back():
+        select_play_type()
+        return
 
-    # Function to draw the buttons and player indicators
-    def draw_buttons():
-        for i, rect in enumerate(button_rects):
-            screen.blit(characters[i]["image"], rect)
-            subheading_rect = subheading_surfaces[i].get_rect(center=(rect.centerx, rect.bottom + 30))
-            screen.blit(subheading_surfaces[i], subheading_rect)
-        
-        # Draw draggable circles
-        pygame.draw.ellipse(screen, (0, 0, 255), p1_circle)  # Blue circle for P1
-        p1_text = font.render("P1", True, (255, 255, 255))
-        screen.blit(p1_text, (p1_circle.centerx - p1_text.get_width() // 2, p1_circle.centery - p1_text.get_height() // 2))
-        
-        pygame.draw.ellipse(screen, (255, 0, 0), p2_circle)  # Red circle for P2
-        p2_text = font.render("P2", True, (255, 255, 255))
-        screen.blit(p2_text, (p2_circle.centerx - p2_text.get_width() // 2, p2_circle.centery - p2_text.get_height() // 2))
+    def select_character():
+        if background_name:
+            select_char()
+        else:
+            show_warning("Select a background first!")
+        return
 
-    def start_game():
-        if player_1_name:
-            global player1_type
-            player1_type = player_1_name
-        if player_2_name:
-            global player2_type
-            player2_type = player_2_name
-        play_two_player()
+    def set_background(name):
+        global background_name
+        background_name = name
+        return
 
-    # Main game loop
-    running = True
-    while running:
+    def select_random_background():
+        global background_name
+        background_name = random.choice(backgrounds)
+        return
+
+    def show_warning(message):
+        font = pygame.font.SysFont(None, 36)
+        text = font.render(message, True, (255, 0, 0))
+        text_rect = text.get_rect(center=(WIDTH - play_button_img.get_width() / 2, 750 + play_button_img.get_height() / 2))
+        displaysurface.blit(text, text_rect)
+        pygame.display.update(text_rect)  # Update only the warning text area
+        pygame.time.wait(2000)
+
+    selected_background_img = None
+    selected_background_gif_frames = []
+    selected_background_is_gif = False
+
+    while True:
+        FramePerSec.tick(FPS)
+
+        # Display GIF frame
+        displaysurface.blit(gif_frames[gif_frame_index], (0, 0))
+        gif_frame_index = (gif_frame_index + 1) % gif_frame_count
+
+        current_time = pygame.time.get_ticks()
+
+        # Update box animation
+        if current_time - box_frame_time >= 100:
+            box_frame_index = (box_frame_index + 1) % len(box_gif_frames)
+            box_frame_time = current_time
+
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                running = False
-            if event.type == pygame.MOUSEBUTTONDOWN:
-                if p1_circle.collidepoint(event.pos):
-                    p1_dragging = True
-                    mouse_x, mouse_y = event.pos
-                    offset_x = p1_circle.x - mouse_x
-                    offset_y = p1_circle.y - mouse_y
-                elif p2_circle.collidepoint(event.pos):
-                    p2_dragging = True
-                    mouse_x, mouse_y = event.pos
-                    offset_x = p2_circle.x - mouse_x
-                    offset_y = p2_circle.y - mouse_y
-                elif start_button_rect.collidepoint(event.pos):
-                    start_game()
-            if event.type == pygame.MOUSEBUTTONUP:
-                if p1_dragging:
-                    p1_dragging = False
-                    for i, rect in enumerate(button_rects):
-                        if rect.collidepoint(event.pos):
-                            selected_player_1 = i
-                            player_1_name = characters[i]["name"]
-                            p1_circle.center = (rect.centerx - 60, rect.centery)  
-                elif p2_dragging:
-                    p2_dragging = False
-                    for i, rect in enumerate(button_rects):
-                        if rect.collidepoint(event.pos):
-                            selected_player_2 = i
-                            player_2_name = characters[i]["name"]
-                            p2_circle.center = (rect.centerx + 60, rect.centery)  
-            if event.type == pygame.MOUSEMOTION:
-                if p1_dragging:
-                    mouse_x, mouse_y = event.pos
-                    p1_circle.x = mouse_x + offset_x
-                    p1_circle.y = mouse_y + offset_y
-                elif p2_dragging:
-                    mouse_x, mouse_y = event.pos
-                    p2_circle.x = mouse_x + offset_x
-                    p2_circle.y = mouse_y + offset_y
+                pygame.quit()
+                sys.exit()
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                if event.button == 4:  # Scroll up
+                    scroll_offset = max(scroll_offset - 30, 0)
+                elif event.button == 5:  # Scroll down
+                    scroll_offset = min(scroll_offset + 30, max_scroll)
 
-        # Clear the screen
-        screen.fill((0, 0, 0))  # Black background
+        # Display buttons
+        image_button(back_button_img, (25, 25), displaysurface, go_back)
+        image_button(play_button_img, (WIDTH - play_button_img.get_width() * 3, 750), displaysurface, select_character)
+        image_button(random_button_img, (WIDTH - random_button_img.get_width() * 4.5, 750), displaysurface, select_random_background)
 
-        # Draw the buttons and player indicators
-        draw_buttons()
+        # Create a surface for the scrollable area
+        scroll_surface = pygame.Surface((1000, 450), pygame.SRCALPHA)
 
-        # Ensure circles don't overlap
-        if p1_circle.colliderect(p2_circle):
-            if p1_circle.centerx < p2_circle.centerx:
-                p1_circle.right = p2_circle.left - 10
+        # Render background image buttons in a grid format (4 per row)
+        for i, background in enumerate(backgrounds):
+            x = (i % 4) * 240 + 15
+            y = (i // 4) * 135 - scroll_offset
+            image_button(background_thumbnails[background], (x, y), scroll_surface, action=lambda bg=background: set_background(bg))
+
+        displaysurface.blit(scroll_surface, scroll_surface_pos)
+
+        # Draw the scrollbar
+        if max_scroll > 0:
+            scroll_bar_y = scroll_surface_pos[1] + int((scroll_offset / max_scroll) * (450 - 75))
+        else:
+            scroll_bar_y = scroll_surface_pos[1]
+
+        pygame.draw.rect(displaysurface, (100, 100, 100), (scroll_surface_pos[0] + 1000, scroll_bar_y, 30, 75))
+
+        # Display selected background on the right side
+        if background_name:
+            base_name = background_name.rsplit('.', 1)[0].replace('_', ' ')  # Extract base name without extension and replace underscores with spaces
+            
+            if background_name.endswith('.png'):
+                selected_background_img = pygame.transform.scale(background_images[background_name], box_size)
+                selected_background_is_gif = False
+            elif background_name.endswith('.gif'):
+                selected_background_gif_frames = background_gifs[background_name]
+                selected_background_gif_frames = [pygame.transform.scale(frame, box_size) for frame in selected_background_gif_frames]
+                selected_background_is_gif = True
+            
+            if selected_background_is_gif:
+                box_gif_frame_index = (current_time // 100) % len(selected_background_gif_frames)
+                displaysurface.blit(selected_background_gif_frames[box_gif_frame_index], box_rect.topleft)
             else:
-                p2_circle.right = p1_circle.left - 10
+                displaysurface.blit(selected_background_img, box_rect.topleft)
+            
+            # Add a thick outline to the box
+            pygame.draw.rect(displaysurface, (255, 255, 255), box_rect, 5)
 
-        # Draw the start button
-        pygame.draw.rect(screen, (255, 0, 0), start_button_rect)  # Red start button
-        start_text = font.render("Start", True, (255, 255, 255))
-        screen.blit(start_text, (start_button_rect.centerx - start_text.get_width() // 2, start_button_rect.centery - start_text.get_height() // 2))
+            # Render the background name below the box
+            font = pygame.font.SysFont(None, 32)  # Choose a font and size
+            text_surface = font.render(base_name, True, (255, 255, 255))  # Render the text
+            text_rect = text_surface.get_rect(midtop=(box_rect.centerx, box_rect.bottom + 10))  # Position the text
+            displaysurface.blit(text_surface, text_rect)  # Blit the text surface onto the display surface
 
-        # Display selected character names
-        if player_1_name:
-            p1_char_text = font.render(f"P1: {player_1_name}", True, (0, 255, 0))
-            screen.blit(p1_char_text, (50, 10))
-        if player_2_name:
-            p2_char_text = font.render(f"P2: {player_2_name}", True, (0, 255, 0))
-            screen.blit(p2_char_text, (WIDTH - p2_char_text.get_width() - 50, 10))
+        pygame.display.update()
 
-        # Update the display
-        pygame.display.flip()
+
 
 
 def select_char():
@@ -345,14 +440,11 @@ def select_char():
     # The selected characters are then used in the two-player game.
     
     global player1_type, player2_type
-    
-    vec = pygame.math.Vector2
-    displaysurface = pygame.display.set_mode((WIDTH, HEIGHT))
     screen = displaysurface
-    pygame.display.set_caption("Character Selection")
-    
-        # Load GIF frames
-    gif_frames = load_gif_frames('assets/menu.gif')
+
+
+    # Load GIF frames
+    gif_frames = load_gif_frames('assets/menu.gif', WIDTH, HEIGHT)
     gif_frame_count = len(gif_frames)
     gif_frame_index = 0
 
@@ -436,7 +528,7 @@ def select_char():
             screen.blit(error_text, (WIDTH // 2 - error_text.get_width() // 2, HEIGHT - start_button_img.get_height() - 100))
 
     def go_back():
-        menu_screen()
+        select_back()
         return
 
     # Main game loop
@@ -510,18 +602,17 @@ def select_char():
         # Update the display
         pygame.display.flip()
 
+import ground_class
+import background_class
+import platforms
 
 def play_two_player():
-    vec = pygame.math.Vector2  # 2 for two dimensional
-    FramePerSec = pygame.time.Clock()
 
-    displaysurface = pygame.display.set_mode((WIDTH, HEIGHT))
-    pygame.display.set_caption("Game")
     bring_window_to_front()
 
     # Delayed imports and initializations
 
-    background = background_class.Background(displaysurface)
+    background = background_class.Background(displaysurface, background_name)
     ground = ground_class.Ground(displaysurface)
     ground_group = pygame.sprite.Group()
     ground_group.add(ground)
@@ -587,11 +678,11 @@ def play_two_player():
         menu_surface.fill((0, 0, 0, 128))  # Semi-transparent black background
 
         # Load images for buttons
-        resume_button_img = pygame.transform.scale(pygame.image.load('assets/buttons/resume_button.png'), (200, 100))
-        brightness_button_img = pygame.transform.scale(pygame.image.load('assets/buttons/brightness_button.png'), (200, 100))
-        home_button_img = pygame.transform.scale(pygame.image.load('assets/buttons/home_button.png'), (200, 100))
-        key_bindings_button_img = pygame.transform.scale(pygame.image.load('assets/buttons/key_bindings_button.png'), (200, 100))
-        restart_button_img = pygame.transform.scale(pygame.image.load('assets/buttons/restart_button.png'), (200, 100))
+        resume_button_img = pygame.transform.scale(pygame.image.load('assets/buttons/resume_button.png'), (300, 150))
+        brightness_button_img = pygame.transform.scale(pygame.image.load('assets/buttons/brightness_button.png'), (300, 150))
+        home_button_img = pygame.transform.scale(pygame.image.load('assets/buttons/home_button.png'), (300, 150))
+        key_bindings_button_img = pygame.transform.scale(pygame.image.load('assets/buttons/key_bindings_button.png'), (300, 150))
+        restart_button_img = pygame.transform.scale(pygame.image.load('assets/buttons/restart_button.png'), (300, 150))
 
         def image_button(image, pos, action=None):
             rect = image.get_rect(topleft=pos)
@@ -605,15 +696,15 @@ def play_two_player():
             menu_surface.blit(image, rect)
 
         # Display buttons
-        image_button(resume_button_img, (WIDTH // 2 - resume_button_img.get_width() // 2, HEIGHT // 2 - resume_button_img.get_height() // 2 - resume_button_img.get_height() // 2 // 2))
-        image_button(key_bindings_button_img, (WIDTH // 2 - key_bindings_button_img.get_width() // 2, HEIGHT // 2 - key_bindings_button_img.get_height() // 2 + 90 - key_bindings_button_img.get_height() // 2 // 2))
-        image_button(brightness_button_img, (WIDTH // 2 - brightness_button_img.get_width() // 2, HEIGHT // 2 - brightness_button_img.get_height() // 2 + 180 - brightness_button_img.get_height() // 2 // 2))
-        image_button(restart_button_img, (WIDTH // 2 - restart_button_img.get_width() // 2, HEIGHT // 2 - restart_button_img.get_height() // 2 + 270 - restart_button_img.get_height() // 2 // 2))
-        image_button(home_button_img, (WIDTH // 2 - home_button_img.get_width() // 2, HEIGHT // 2 - home_button_img.get_height() // 2 + 360 - home_button_img.get_height() // 2 // 2))
+        image_button(resume_button_img, (WIDTH // 2 - resume_button_img.get_width() // 2, 50))
+        image_button(key_bindings_button_img, (WIDTH // 2 - key_bindings_button_img.get_width() // 2, 212.5))
+        image_button(brightness_button_img, (WIDTH // 2 - brightness_button_img.get_width() // 2, 375))
+        image_button(restart_button_img, (WIDTH // 2 - restart_button_img.get_width() // 2, 537.5 ))
+        image_button(home_button_img, (WIDTH // 2 - home_button_img.get_width() // 2, 700))
 
 
         displaysurface.blit(menu_surface, (0, 0))
-        pygame.display.update()
+        pygame.display.flip()
 
         while True:
             for event in pygame.event.get():
@@ -624,16 +715,16 @@ def play_two_player():
                     if event.key == pygame.K_ESCAPE:
                         return
                 if event.type == pygame.MOUSEBUTTONDOWN:
-                    if resume_button_img.get_rect(topleft=(WIDTH // 2 - resume_button_img.get_width() // 2, HEIGHT // 2 - resume_button_img.get_height() // 2)).collidepoint(event.pos):
+                    if resume_button_img.get_rect(topleft=(WIDTH // 2 - resume_button_img.get_width() // 2, 50 )).collidepoint(event.pos):
                         return
-                    elif key_bindings_button_img.get_rect(topleft=(WIDTH // 2 - key_bindings_button_img.get_width() // 2, HEIGHT // 2 - key_bindings_button_img.get_height() // 2 + 90)).collidepoint(event.pos):
+                    elif key_bindings_button_img.get_rect(topleft=(WIDTH // 2 - key_bindings_button_img.get_width() // 2, 212.5)).collidepoint(event.pos):
                         print("Key Bindings button clicked")  # Add key bindings functionality here
-                    elif brightness_button_img.get_rect(topleft=(WIDTH // 2 - brightness_button_img.get_width() // 2, HEIGHT // 2 - brightness_button_img.get_height() // 2 + 180)).collidepoint(event.pos):
+                    elif brightness_button_img.get_rect(topleft=(WIDTH // 2 - brightness_button_img.get_width() // 2, 375)).collidepoint(event.pos):
                         print("Brightness button clicked")  # Add brightness control functionality here
-                    elif restart_button_img.get_rect(topleft=(WIDTH // 2 - restart_button_img.get_width() // 2, HEIGHT // 2 - restart_button_img.get_height() // 2 + 270)).collidepoint(event.pos):
+                    elif restart_button_img.get_rect(topleft=(WIDTH // 2 - restart_button_img.get_width() // 2, 537.5)).collidepoint(event.pos):
                         play_two_player()  # Ensure play_two_player() is defined
                         return  
-                    elif home_button_img.get_rect(topleft=(WIDTH // 2 - home_button_img.get_width() // 2, HEIGHT // 2 - home_button_img.get_height() // 2 + 360)).collidepoint(event.pos):
+                    elif home_button_img.get_rect(topleft=(WIDTH // 2 - home_button_img.get_width() // 2, 700)).collidepoint(event.pos):
                         menu_screen()  # Ensure menu_screen() is defined
                         return
 
@@ -718,19 +809,15 @@ def play_two_player():
         player_2_group.draw(displaysurface)
         player_group.draw(displaysurface)
 
-        pygame.display.update()
+        pygame.display.flip()
 
     #bring_window_to_front()
 
 
 # Method to call when player chooses to play a single player game against a Bot
 def play_one_player():
-    vec = pygame.math.Vector2  # 2 for two dimensional
-    FramePerSec = pygame.time.Clock()
 
-    displaysurface = pygame.display.set_mode((WIDTH, HEIGHT))
-    pygame.display.set_caption("Game")
-    #bring_window_to_front()
+    bring_window_to_front()
 
     # Delayed imports and initializations
     
@@ -900,11 +987,11 @@ def play_one_player():
         pygame.display.update()
         
 
-async def main():
-    asyncio.create_task(menu_screen())
+def main():
+    menu_screen()
 
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    main()
     
 
