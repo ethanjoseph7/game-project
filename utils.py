@@ -16,3 +16,4 @@ def load_gif_frames(filename, width, height):
         frame_surface = pygame.transform.scale(frame_surface, (width, height))
         frames.append(frame_surface)
     return frames
+

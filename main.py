@@ -46,20 +46,7 @@ def bring_window_to_front():
     else:
         print("Warning: 'window' key not found in wm_info. Unable to bring window to front.")
 
-
-# Method for the menu screen at the start of the game
-def menu_screen():
-    gif_frames = load_gif_frames('assets/menu.gif', WIDTH, HEIGHT)
-    gif_frame_count = len(gif_frames)
-    gif_frame_index = 0
-
-    start_button_img = pygame.transform.scale(pygame.image.load('assets/buttons/play_button.png'), (295, 150))
-    exit_button_img = pygame.transform.scale(pygame.image.load('assets/buttons/exit_button.png'), (275, 150))
-    setting_button_img = pygame.transform.scale(pygame.image.load('assets/buttons/setting_button.png'), (150, 150))
-
-    rotation_angle = 0
-
-    def setting_menu():
+def setting_menu():
         menu_font = pygame.font.SysFont('Arial', 30)
         menu_surface = pygame.Surface((WIDTH, HEIGHT), pygame.SRCALPHA)
         menu_surface.fill((0, 0, 0, 128))
@@ -112,6 +99,20 @@ def menu_screen():
                         menu_screen()
                         return
 
+
+# Method for the menu screen at the start of the game
+def menu_screen():
+    gif_frames = load_gif_frames('assets/menu.gif', WIDTH, HEIGHT)
+    gif_frame_count = len(gif_frames)
+    gif_frame_index = 0
+
+    start_button_img = pygame.transform.scale(pygame.image.load('assets/buttons/play_button.png'), (295, 150))
+    exit_button_img = pygame.transform.scale(pygame.image.load('assets/buttons/exit_button.png'), (275, 150))
+    setting_button_img = pygame.transform.scale(pygame.image.load('assets/buttons/setting_button.png'), (150, 150))
+
+    rotation_angle = 0
+
+  
     def draw_button_with_shadow(image, pos, offset=(5, 5), shadow_color=(50, 50, 50)):
         shadow_image = image.copy()
         shadow_image.fill(shadow_color, special_flags=pygame.BLEND_RGBA_MULT)
@@ -230,6 +231,10 @@ def select_play_type():
             if event.type == QUIT:
                 pygame.quit()
                 sys.exit()
+            
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    show_menu()
 
         # Display buttons
         image_button(single_player_button_img, (WIDTH // 3 - single_player_button_img.get_width(), HEIGHT // 2.5), single_play)
@@ -372,12 +377,17 @@ def select_back():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
-                sys.exit()
+                sys.exit()   
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == 4:  # Scroll up
                     scroll_offset = max(scroll_offset - 30, 0)
                 elif event.button == 5:  # Scroll down
                     scroll_offset = min(scroll_offset + 30, max_scroll)
+                    
+            
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    show_menu()
 
         # Display buttons
         image_button(back_button_img, (25, 25), displaysurface, go_back)
@@ -537,6 +547,11 @@ def select_char():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
+            
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    show_menu()
+                    
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if p1_circle.collidepoint(event.pos):
                     p1_dragging = True
@@ -606,6 +621,65 @@ import ground_class
 import background_class
 import platforms
 
+#in game menu
+
+def show_menu():
+        menu_font = pygame.font.SysFont('Arial', 30)
+        menu_surface = pygame.Surface((WIDTH, HEIGHT), pygame.SRCALPHA)
+        menu_surface.fill((0, 0, 0, 128))  # Semi-transparent black background
+
+        # Load images for buttons
+        resume_button_img = pygame.transform.scale(pygame.image.load('assets/buttons/resume_button.png'), (300, 150))
+        brightness_button_img = pygame.transform.scale(pygame.image.load('assets/buttons/brightness_button.png'), (300, 150))
+        home_button_img = pygame.transform.scale(pygame.image.load('assets/buttons/home_button.png'), (300, 150))
+        key_bindings_button_img = pygame.transform.scale(pygame.image.load('assets/buttons/key_bindings_button.png'), (300, 150))
+        restart_button_img = pygame.transform.scale(pygame.image.load('assets/buttons/restart_button.png'), (300, 150))
+
+        def image_button(image, pos, action=None):
+            rect = image.get_rect(topleft=pos)
+            mouse = pygame.mouse.get_pos()
+            click = pygame.mouse.get_pressed()
+
+            if rect.collidepoint(mouse):
+                if click[0] == 1 and action is not None:
+                    action()
+
+            menu_surface.blit(image, rect)
+
+        # Display buttons
+        image_button(resume_button_img, (WIDTH // 2 - resume_button_img.get_width() // 2, 50))
+        image_button(key_bindings_button_img, (WIDTH // 2 - key_bindings_button_img.get_width() // 2, 212.5))
+        image_button(brightness_button_img, (WIDTH // 2 - brightness_button_img.get_width() // 2, 375))
+        image_button(restart_button_img, (WIDTH // 2 - restart_button_img.get_width() // 2, 537.5 ))
+        image_button(home_button_img, (WIDTH // 2 - home_button_img.get_width() // 2, 700))
+
+
+        displaysurface.blit(menu_surface, (0, 0))
+        pygame.display.flip()
+
+        while True:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    sys.exit()
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_ESCAPE:
+                        return
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    if resume_button_img.get_rect(topleft=(WIDTH // 2 - resume_button_img.get_width() // 2, 50 )).collidepoint(event.pos):
+                        return
+                    elif key_bindings_button_img.get_rect(topleft=(WIDTH // 2 - key_bindings_button_img.get_width() // 2, 212.5)).collidepoint(event.pos):
+                        print("Key Bindings button clicked")  # Add key bindings functionality here
+                    elif brightness_button_img.get_rect(topleft=(WIDTH // 2 - brightness_button_img.get_width() // 2, 375)).collidepoint(event.pos):
+                        print("Brightness button clicked")  # Add brightness control functionality here
+                    elif restart_button_img.get_rect(topleft=(WIDTH // 2 - restart_button_img.get_width() // 2, 537.5)).collidepoint(event.pos):
+                        play_two_player()  # Ensure play_two_player() is defined
+                        return  
+                    elif home_button_img.get_rect(topleft=(WIDTH // 2 - home_button_img.get_width() // 2, 700)).collidepoint(event.pos):
+                        menu_screen()  # Ensure menu_screen() is defined
+                        return
+
+
 def play_two_player():
 
     bring_window_to_front()
@@ -672,62 +746,7 @@ def play_two_player():
 
     # Function to display in-game menu
 
-    def show_menu():
-        menu_font = pygame.font.SysFont('Arial', 30)
-        menu_surface = pygame.Surface((WIDTH, HEIGHT), pygame.SRCALPHA)
-        menu_surface.fill((0, 0, 0, 128))  # Semi-transparent black background
-
-        # Load images for buttons
-        resume_button_img = pygame.transform.scale(pygame.image.load('assets/buttons/resume_button.png'), (300, 150))
-        brightness_button_img = pygame.transform.scale(pygame.image.load('assets/buttons/brightness_button.png'), (300, 150))
-        home_button_img = pygame.transform.scale(pygame.image.load('assets/buttons/home_button.png'), (300, 150))
-        key_bindings_button_img = pygame.transform.scale(pygame.image.load('assets/buttons/key_bindings_button.png'), (300, 150))
-        restart_button_img = pygame.transform.scale(pygame.image.load('assets/buttons/restart_button.png'), (300, 150))
-
-        def image_button(image, pos, action=None):
-            rect = image.get_rect(topleft=pos)
-            mouse = pygame.mouse.get_pos()
-            click = pygame.mouse.get_pressed()
-
-            if rect.collidepoint(mouse):
-                if click[0] == 1 and action is not None:
-                    action()
-
-            menu_surface.blit(image, rect)
-
-        # Display buttons
-        image_button(resume_button_img, (WIDTH // 2 - resume_button_img.get_width() // 2, 50))
-        image_button(key_bindings_button_img, (WIDTH // 2 - key_bindings_button_img.get_width() // 2, 212.5))
-        image_button(brightness_button_img, (WIDTH // 2 - brightness_button_img.get_width() // 2, 375))
-        image_button(restart_button_img, (WIDTH // 2 - restart_button_img.get_width() // 2, 537.5 ))
-        image_button(home_button_img, (WIDTH // 2 - home_button_img.get_width() // 2, 700))
-
-
-        displaysurface.blit(menu_surface, (0, 0))
-        pygame.display.flip()
-
-        while True:
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    pygame.quit()
-                    sys.exit()
-                if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_ESCAPE:
-                        return
-                if event.type == pygame.MOUSEBUTTONDOWN:
-                    if resume_button_img.get_rect(topleft=(WIDTH // 2 - resume_button_img.get_width() // 2, 50 )).collidepoint(event.pos):
-                        return
-                    elif key_bindings_button_img.get_rect(topleft=(WIDTH // 2 - key_bindings_button_img.get_width() // 2, 212.5)).collidepoint(event.pos):
-                        print("Key Bindings button clicked")  # Add key bindings functionality here
-                    elif brightness_button_img.get_rect(topleft=(WIDTH // 2 - brightness_button_img.get_width() // 2, 375)).collidepoint(event.pos):
-                        print("Brightness button clicked")  # Add brightness control functionality here
-                    elif restart_button_img.get_rect(topleft=(WIDTH // 2 - restart_button_img.get_width() // 2, 537.5)).collidepoint(event.pos):
-                        play_two_player()  # Ensure play_two_player() is defined
-                        return  
-                    elif home_button_img.get_rect(topleft=(WIDTH // 2 - home_button_img.get_width() // 2, 700)).collidepoint(event.pos):
-                        menu_screen()  # Ensure menu_screen() is defined
-                        return
-
+    
     # game loop
     while True:
         FramePerSec.tick(FPS)
