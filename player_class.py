@@ -11,7 +11,7 @@ SIZE_MULTIPLIER = 1.9
 
 class Player(pygame.sprite.Sprite):
     
-    def __init__(self, vec, screen, type):
+    def __init__(self, vec, screen, type, ground_group, platform_group):
         super().__init__()
         # Sprite
         self.type = type
@@ -34,11 +34,10 @@ class Player(pygame.sprite.Sprite):
         self.all_attack_images.append(self.attack_2_images)
         self.all_attack_images.append(self.attack_3_images)
 
-        BG = (0,0,0,0)
+
         self.image = pygame.Surface((64*SIZE_MULTIPLIER,84*SIZE_MULTIPLIER)).convert_alpha()
         self.rect = self.image.get_rect()
         self.image.blit(self.idle_images[0], self.rect)
-        self.image.set_colorkey(BG)
         self.displaysurface = screen
         self.vec = vec
         self.number = 1
@@ -63,7 +62,13 @@ class Player(pygame.sprite.Sprite):
         self.cooldown = False
         self.attack_frame = 0
         self.attack_sheet = 0
+        self.raw_damage = 7
+        self.damage_multiplier = 1
         self.damage = 0
+        self.last_frame = -1
+        self.last_attack = pygame.time.get_ticks()
+        self.attack_spaced = False
+
 
         # Idle
         self.idle_frame = 0
@@ -76,6 +81,10 @@ class Player(pygame.sprite.Sprite):
 
         # Health
         self.health = 100
+
+        # Platform and Ground
+        self.platform_group = platform_group
+        self.ground_group = ground_group
 
         
 
@@ -115,13 +124,16 @@ class Player(pygame.sprite.Sprite):
         else:
             self.running = False
 
+
         #returns the current key presses
         pressed_keys = pygame.key.get_pressed()
 
         #player acceleration
-        if pressed_keys[K_LEFT]:
+        if self.attacking:
+            self.acc.x = 0
+        elif pressed_keys[K_LEFT]:
             self.acc.x = -ACC
-        if pressed_keys[K_RIGHT]:
+        elif pressed_keys[K_RIGHT]:
             self.acc.x = ACC
 
         #velocity calculations
@@ -137,9 +149,9 @@ class Player(pygame.sprite.Sprite):
 
         self.rect.midbottom = self.pos
     
-    def gravity_check(self, player, ground_group, platform_group):
-        hits = pygame.sprite.spritecollide(player, ground_group, False)
-        hits_platform = pygame.sprite.spritecollide(player, platform_group, False)
+    def gravity_check(self):
+        hits = pygame.sprite.spritecollide(self, self.ground_group, False)
+        hits_platform = pygame.sprite.spritecollide(self, self.platform_group, False)
         if self.vel.y < 0:
             self.falling = False
         if self.vel.y > 0:
@@ -150,7 +162,7 @@ class Player(pygame.sprite.Sprite):
                     self.vel.y = 0
                     self.jumping = False
                     self.double_jump = False
-                    player.falling = False
+                    self.falling = False
             elif hits_platform and not self.falling:
                 lowest = hits_platform[0]
                 if self.pos.y <= lowest.rect.bottom + self.vel.y:
@@ -158,15 +170,15 @@ class Player(pygame.sprite.Sprite):
                     self.vel.y = 0
                     self.jumping = False
                     self.double_jump = False
-                    player.falling = False
+                    self.falling = False
 
-    def jump(self, ground_group, platform_group):
+    def jump(self):
         self.rect.x +=1 
         self.falling = False
         self.attacking = False
         #check to see if player contacts ground
-        hits = pygame.sprite.spritecollide(self, ground_group, False)
-        hits_platform = pygame.sprite.spritecollide(self, platform_group, False)
+        hits = pygame.sprite.spritecollide(self, self.ground_group, False)
+        hits_platform = pygame.sprite.spritecollide(self, self.platform_group, False)
 
         self.rect.x -= 1
 
@@ -178,9 +190,9 @@ class Player(pygame.sprite.Sprite):
             self.double_jump = True
             self.vel.y = -12
             
-    def fall(self, platform_group):
-        hits_platform = pygame.sprite.spritecollide(self, platform_group, False)
-        if hits_platform and not self.falling:
+    def fall(self):
+        hits_platform = pygame.sprite.spritecollide(self, self.platform_group, False)
+        if hits_platform and not self.falling and not self.jumping:
             self.falling = True
             self.vel.y = 3
             self.jumping = False
@@ -195,6 +207,13 @@ class Player(pygame.sprite.Sprite):
         if self.jump_frame > len(self.jump_images):
             self.jump_frame = 0
             return
+        
+        # attack delay
+        if pygame.time.get_ticks() - 150 < self.last_attack:
+            self.attack_spaced = True
+            
+        else:
+            self.attack_spaced = False
         
         # change image when jumping or falling
         if self.jumping or self.falling:
@@ -228,6 +247,12 @@ class Player(pygame.sprite.Sprite):
     
     def attack(self):
         # if attack frame has reached end of sequence, return to base frame
+        if pygame.time.get_ticks() - 550 > self.last_attack:
+            self.attack_sheet = 0
+            self.attack_frame = 0
+            self.last_frame = -1
+
+
         self.attacking = True
         if self.vel.y == 0: 
             self.vel.x /= 1.5
@@ -243,9 +268,11 @@ class Player(pygame.sprite.Sprite):
             self.attack_frame = 0
         
         if self.attack_sheet < 2:
-            self.damage = 10
+            self.damage_multiplier = 1
         else:
-            self.damage = 15
+            self.damage_multiplier = 1.5
+
+        self.damage = self.raw_damage * self.damage_multiplier
 
         current_attack_list = self.all_attack_images[self.attack_sheet]
         # Check direction for correct animation to display
@@ -259,6 +286,7 @@ class Player(pygame.sprite.Sprite):
 
         # update the current attack frame
         self.attack_frame += 0.15
+        self.last_attack = pygame.time.get_ticks()
        
         
         
@@ -285,14 +313,13 @@ class Player(pygame.sprite.Sprite):
 
 
 class Player_2(Player):
-    def __init__(self, vec, screen, type):
-        super().__init__(vec, screen, type)
+    def __init__(self, vec, screen, type, ground_group, platform_group):
+        super().__init__(vec, screen, type, ground_group, platform_group)
         self.load_sprites(type)
         self.pos = vec((300, 240))
         self.direction = "RIGHT"
-        self.type = type
         self.number = 2
-        self.load_sprites(self.type)
+        self.platform_group = platform_group
 
     def move(self):
         self.acc = self.vec(0,0.3)
@@ -323,3 +350,26 @@ class Player_2(Player):
             self.pos.x = WIDTH
 
         self.rect.midbottom = self.pos
+
+    def gravity_check(self):
+        hits = pygame.sprite.spritecollide(self, self.ground_group, False)
+        hits_platform = pygame.sprite.spritecollide(self, self.platform_group, False)
+        if self.vel.y < 0:
+            self.falling = False
+        if self.vel.y > 0:
+            if hits:
+                lowest = hits[0]
+                if self.pos.y < lowest.rect.bottom:
+                    self.pos.y = lowest.rect.top +1 
+                    self.vel.y = 0
+                    self.jumping = False
+                    self.double_jump = False
+                    self.falling = False
+            elif hits_platform and not self.falling:
+                lowest = hits_platform[0]
+                if self.pos.y > lowest.rect.top:
+                    self.pos.y = lowest.rect.top+1 
+                    self.vel.y = 0
+                    self.jumping = False
+                    self.double_jump = False
+                    self.falling = False
