@@ -36,6 +36,7 @@ background_name = None
 
 play_single= False
 play_double = False
+game_over = False
 
 
 # Method to bring the game window to the front
@@ -965,15 +966,24 @@ def register_attack(fighter, opponent, opponent_sprite_group, displaysurface):
     return
 
 def draw_health_bar(player, x, y, displaysurface):
+        global play_single, play_double
         ratio = player.health / 100
         
-        if(player.health <= 1):
-            if player.number == 1:
+        if(player.health <= -7):
+            if player.number == 2:
+                if play_single:
+                    show_message("player wins")
+                else:
+                    show_message("player 1 wins")
                 select_back()
-                show_message("player wins")
+                
             else:
+                if play_single:
+                    show_message("enemy wins")
+                else:
+                    show_message("player 2 wins")
                 select_back()
-                show_message("enemy wins")
+                
             pygame.quit()
             sys.exit()
             

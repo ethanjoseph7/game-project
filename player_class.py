@@ -184,7 +184,7 @@ class Player(pygame.sprite.Sprite):
 
         if (hits or hits_platform) and not self.jumping:
             self.jumping = True
-            self.vel.y = -16
+            self.vel.y = -14
 
         elif self.jumping and not self.double_jump:
             self.double_jump = True
@@ -372,4 +372,3 @@ class Player_2(Player):
                     self.vel.y = 0
                     self.jumping = False
                     self.double_jump = False
-                    self.falling = False
