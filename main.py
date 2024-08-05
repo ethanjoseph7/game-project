@@ -36,6 +36,8 @@ background_name = None
 single_play = False
 double_play = False
 
+round_number = 1
+
 
 # Method to bring the game window to the front
 def bring_window_to_front():
@@ -680,7 +682,21 @@ def show_menu():
                         return
 
 
+
+def display_round(round_number):
+    font = pygame.font.SysFont('Arial', 24)
+
+    overlay = pygame.Surface((WIDTH, HEIGHT), pygame.SRCALPHA)
+    overlay.fill((0, 0, 0, 180))  # Semi-transparent black
+    text = font.render(f"Round {round_number}", True, WHITE)
+    text_rect = text.get_rect(center=(WIDTH / 2, HEIGHT / 2))
+    overlay.blit(text, text_rect)
+    displaysurface.blit(overlay, (0, 0))
+    pygame.display.update()
+    pygame.time.delay(1000)  # Show the overlay for 2 seconds
+        
 def play_two_player():
+    global round_number
 
     bring_window_to_front()
 
@@ -708,12 +724,15 @@ def play_two_player():
     platform_group = pygame.sprite.Group()
     platform_group.add(platform1, platform2, platform3)
 
-    fullscreen = False
+    #fullscreen = False
 
     font = pygame.font.SysFont('Arial', 24)
 
-    players = (player_1, player_2)
+    #players = (player_1, player_2)
 
+
+
+        
     # Function for creating health bar
     def draw_health_bar(player, x, y):
         ratio = player.health / 100
@@ -746,6 +765,8 @@ def play_two_player():
 
     # Function to display in-game menu
 
+
+    #pygame.display.update()
     
     # game loop
     while True:
@@ -808,11 +829,13 @@ def play_two_player():
 
         player_1.gravity_check(player_1, ground_group, platform_group)
         player_2.gravity_check(player_2, ground_group, platform_group)
+    
 
         # Render Functions ------
         background.render()
         ground.render()
         platform_group.draw(displaysurface)
+
 
         update_health()
         player_2.update()
@@ -829,6 +852,16 @@ def play_two_player():
         player_group.draw(displaysurface)
 
         pygame.display.flip()
+
+        
+        
+        
+    
+ 
+
+
+
+
 
     #bring_window_to_front()
 
